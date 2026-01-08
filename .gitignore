@@ -1,0 +1,12 @@
+*.pyc
+__pycache__/
+medicient/
+notes/ 
+ssh-key/
+workspace/
+*.code-workspace
+*.vscode
+build/
+dist/
+*.spec
+test/
