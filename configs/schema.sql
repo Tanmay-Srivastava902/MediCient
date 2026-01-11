@@ -39,7 +39,7 @@ CREATE TABLE disease (
     disease_name VARCHAR(50) NOT NULL UNIQUE,
     symptoms TEXT NOT NULL,
     disease_desc TEXT NOT NULL,
-    medicines_prefered TEXT NOT NULL,
+    medicines_preferred TEXT NOT NULL,
     precautions_needed TEXT NOT NULL
 );
 

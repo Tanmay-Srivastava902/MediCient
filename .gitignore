@@ -11,3 +11,6 @@ dist/
 *.spec
 test/
 backup/
+# important to ignore contains user specific sensitive info
+.sensitive_info/
+*.key
