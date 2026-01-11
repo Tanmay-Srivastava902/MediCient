@@ -78,7 +78,7 @@ def delete_record(conn,table,where_clause:list[dict] , with_or:bool=False):
     # cursor.close()
 
 # version 5 with manual in + order by + like
-def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=False,order_by_column=None,order='asc',):
+def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=False,order_by_column=None,order='asc',limit=None,offset=None):
     # user ['*'] for all columns
     
     where_list  = []
@@ -89,6 +89,7 @@ def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=F
 
             auto_detect_in = isinstance(value,(tuple,list)) # here instance value (type tuple ) is an instance of class tuple hence True else false
             auto_detect_like = True if '%' in value or '_' in value else False  # true if value ('_%s_','%_') is in value -> true 
+
             if auto_detect_in : 
                 in_clause = f"{('%s',)*len(value)}".replace('\'','') 
                 # f"('%s','%s')".replace('\'','') -> f"(%s,%s)"
@@ -106,20 +107,26 @@ def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=F
     params = tuple(where_values)
     conjuction = ' or ' if with_or else ' and '
     
-    # included order by and like 
+    query = f"select {','.join(columns_list)} from {table} where {conjuction.join(where_list)} "
+   
+    # order by 
     if order_by_column:
-        query = f"select {','.join(columns_list)} from {table} where {conjuction.join(where_list)} order by {order_by_column} {order};"
-    else:
-        query = f"select {','.join(columns_list)} from {table} where {conjuction.join(where_list)} ;"
-    
-    # execution 
+        query +=  f" order by {order_by_column} {order} "
+
+    # limit offset
+    if limit and offset:
+        query += f' limit {limit} offset {offset}'
+    elif limit and not offset:
+        query += f' limit {limit}'
+ 
+
+    # execution
     print(query,'\n',params)
     cursor = conn.cursor()
     cursor.execute(query,params)
     result = cursor.fetchall()
     for i in result :
         print(i)
-    conn.commit()
     cursor.close()
 
     pass
@@ -146,6 +153,9 @@ if __name__ == '__main__':
     # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':'nyaipur'},{'uname':'d\\_%'}],with_or=False)
     # select_record('conn','user',['uname','uaddress'],where_clause=[{'uaddress':'nyaipur'},{'uname':('t%',5)}],with_or=True ,with_like=False)
     # select_record('conn','user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc')
+    # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',offset=3)
+    # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',limit=2 , offset=3)
+    # select_record(conn,'user',['*'],where_clause=[{'uid': 'between 10 and 17' }],with_or=True,order_by_column='uid',order='desc',limit=5 , offset=2)
 
 
     # conn.close()
