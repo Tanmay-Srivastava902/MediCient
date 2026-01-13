@@ -17,6 +17,7 @@ from .file import (
     write_json_file,
     write_txt_file,
 )
+from .prompt import get_password_input , confirm
 
 __all__ = [
     'append_txt_file',
@@ -34,4 +35,7 @@ __all__ = [
     'write_binary_file',
     'write_json_file',
     'write_txt_file',
+    'get_password_input',
+    'confirm',
+    
 ]
