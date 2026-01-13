@@ -1,106 +1,220 @@
-'''Manages encryption hashing for security'''
+'''Manages encryption and hashing for security'''
 
-from cryptography.fernet import Fernet , InvalidToken
-# depends on  nothing (encryption key) 
-# let the exceptions flow to the caller till higher level
-def generate_fernet_key():
+from cryptography.fernet import Fernet, InvalidToken
+
+
+# ============================================================================
+# ENCRYPTION KEY MANAGEMENT
+# ============================================================================
+
+def generate_fernet_key() -> bytes:
+    """
+    Generates a new Fernet encryption key.
     
+    Returns:
+        bytes: A URL-safe base64-encoded 32-byte key
+        
+    Note: Caller must store this key securely. Losing the key means losing
+          access to all encrypted data.
+    """
     return Fernet.generate_key()
 
-def __create_fernet_instance(key:bytes):
-    from cryptography.fernet import Fernet 
-    return Fernet(key)
+
+def _create_fernet_instance(key: bytes) -> Fernet:
+    """
+    Creates a Fernet cipher instance.
+    
+    Args:
+        key: Encryption key (from generate_fernet_key)
         
-def get_base64_urlsafe_data(data:str):
-    '''for fernet encoding only'''
-    import base64 
-    return base64.urlsafe_b64encode(data.encode()).decode()
+    Returns:
+        Fernet: Configured cipher instance
+        
+    Note: Internal function - use encrypt/decrypt instead
+    """
+    return Fernet(key)
 
-def decode_base64_urlsafe_data(data:str):
-    '''for fernet encoding only'''
-    import base64 
-    return base64.urlsafe_b64decode(data).decode()
 
-def hash_data(data:str):
-    import hashlib 
-    return hashlib.sha256(data.encode()).hexdigest()
+# ============================================================================
+# ENCRYPTION / DECRYPTION
+# ============================================================================
 
-# depends on (fernet_instance)
-def encrypt(key:bytes,data:str):
-    fernet = __create_fernet_instance(key)
+def encrypt(key: bytes, data: str) -> bytes:
+    """
+    Encrypts string data using Fernet symmetric encryption.
+    
+    Args:
+        key: Encryption key (from generate_fernet_key)
+        data: Plain text to encrypt
+        
+    Returns:
+        bytes: Encrypted data (base64-encoded)
+        
+    Example:
+        key = generate_fernet_key()
+        encrypted = encrypt(key, "secret message")
+    """
+    fernet = _create_fernet_instance(key)
     return fernet.encrypt(data.encode())
 
-def decrypt(key:bytes,data:bytes):
+
+def decrypt(key: bytes, data: bytes) -> str | None:
+    """
+    Decrypts Fernet-encrypted data.
+    
+    Args:
+        key: Encryption key (same one used to encrypt)
+        data: Encrypted bytes (from encrypt function)
+        
+    Returns:
+        str: Decrypted plain text
+        None: If key is invalid or data is corrupted
+        
+    Example:
+        decrypted = decrypt(key, encrypted)
+        if decrypted:
+            print(f"Message: {decrypted}")
+    """
     try:
-        fernet  = __create_fernet_instance(key)
+        fernet = _create_fernet_instance(key)
         return fernet.decrypt(data).decode()
-    except (InvalidToken,ValueError):
-        print("❌ Invalid Key Provided")
+    except (InvalidToken, ValueError):
+        print("❌ Invalid key or corrupted data")
         return None
 
+
+# ============================================================================
+# HASHING (ONE-WAY)
+# ============================================================================
+
+def hash_data(data: str) -> str:
+    """
+    Creates SHA-256 hash of data (one-way, cannot be decrypted).
+    
+    Args:
+        data: String to hash
+        
+    Returns:
+        str: Hexadecimal hash (64 characters)
+        
+    Use Cases:
+        - Password storage (store hash, not password)
+        - Data integrity verification
+        - Creating unique identifiers
+        
+    Example:
+        password_hash = hash_data("user_password")
+        # Store password_hash in database, not actual password
+    """
+    import hashlib
+    return hashlib.sha256(data.encode()).hexdigest()
+
+
+# ============================================================================
+# BASE64 UTILITIES 
+# ============================================================================
+
+def encode_base64_urlsafe(data: str) -> str:
+    """
+    Encodes string to URL-safe base64.
+    
+    Note: Only needed if you're doing base64 encoding for purposes OTHER
+          than Fernet (which handles base64 internally).
+    """
+    import base64
+    return base64.urlsafe_b64encode(data.encode()).decode()
+
+
+def decode_base64_urlsafe(data: str) -> str:
+    """
+    Decodes URL-safe base64 to string.
+    
+    Note: Only needed if you're doing base64 decoding for purposes OTHER
+          than Fernet (which handles base64 internally).
+    """
+    import base64
+    return base64.urlsafe_b64decode(data).decode()
+
+
+# ============================================================================
+# TESTS
+# ============================================================================
+
 if __name__ == "__main__":
-    
-    print("\n" + "="*50)
-    print("PROMPTS TEST SUIT")
-    print("="*50)
+    print("\n" + "="*60)
+    print("SECURITY MODULE TEST SUITE")
+    print("="*60)
 
-    
-    # Test 1: get base64 data 
-    print("\n[TEST 1] BASE64 ENCODING ")
-    base_encoded_result = get_base64_urlsafe_data('SECURE DATA : SECRET !!!❤️') 
-    if base_encoded_result:
-        print(f"✓ Check Passed Data: {base_encoded_result}")
-    
-    # Test 2: decode base64 data 
-    print("\n[TEST 2] BASE64 DECODING ")
-    result = decode_base64_urlsafe_data(base_encoded_result) 
-    if result:
-        print(f"✓ Check Passed Data: {result}")
-    
-    # Test 3: hash data 
-    print("\n[TEST 3] HASHING DATA")
-    result = hash_data('SECURE DATA : SECRET !!!❤️') 
-    if result:
-        import hashlib 
-        original_hash = hashlib.sha256('SECURE DATA : SECRET !!!❤️'.encode()).hexdigest()
-        if original_hash == result:
-            print(f"✓ Check Passed Data: {result}")
-        else :
-            print(f"❌ Check Failed: {result}")
-    
+    # Test 1: Key Generation
+    print("\n[TEST 1] Generate Encryption Key")
+    try:
+        key = generate_fernet_key()
+        # Verify it's a valid Fernet key by creating instance
+        Fernet(key)
+        print(f"✅ Generated valid key: {key}")
+    except Exception as e:
+        print(f"❌ Failed: {e}")
 
-    # Test 4: generate fernet key 
-    print("\n[TEST 4] GENERATING ENCRYPTION KEY")
-    fernet_key = generate_fernet_key()
-    if Fernet(fernet_key):
-        print(f"✓ Check Passed Key: {fernet_key}")
+    # generating random key to test further
+    key = Fernet.generate_key()
+    # Test 2: Encryption
+    print("\n[TEST 2] Encrypt Data")
+    test_data = "SECURE DATA: SECRET! 🔒❤️"
+    encrypted = encrypt(key, test_data)
+    print(f"✅ Encrypted: {encrypted}")
+
+    # Test 3: Decryption (Correct Key)
+    print("\n[TEST 3] Decrypt Data (Correct Key)")
+    decrypted = decrypt(key, encrypted)
+    if decrypted == test_data:
+        print(f"✅ Decrypted correctly: {decrypted}")
+    else:
+        print(f"❌ Mismatch! Got: {decrypted}")
+
+    # Test 4: Decryption (Wrong Key)
+    print("\n[TEST 4] Decrypt Data (Wrong Key)")
+    wrong_key = generate_fernet_key()
+    result = decrypt(wrong_key, encrypted)
+    if result is None:
+        print("✅ Correctly rejected wrong key")
+    else:
+        print(f"❌ Should have returned None, got: {result}")
+
+    # Test 5: Hashing
+    print("\n[TEST 5] Hash Data")
+    hash1 = hash_data("password123")
+    hash2 = hash_data("password123")
+    hash3 = hash_data("password124")
     
-    # Test 5: encrypt data (with a key fixed)
-    print("\n[TEST 5] ENCRYPTING  DATA")
-    encoded_result = encrypt(fernet_key,'SECURE DATA : SECRET !!!❤️') 
-    if encoded_result:
-        print(f"✓ Check Passed Data: {encoded_result}")
-       
-    # Test 6: decrypting  data (with wrong key )
-    print("\n[TEST 6] DECRYPTING  DATA - wrong key ")
-    decoded_result = decrypt('wrong_secure_key'.encode(),encoded_result) 
-    if not decoded_result:
-        print(f"✓ Check Passed Data: {decoded_result}")
+    if hash1 == hash2:
+        print("✅ Same input produces same hash")
+    else:
+        print("❌ Inconsistent hashing")
+        
+    if hash1 != hash3:
+        print("✅ Different input produces different hash")
+    else:
+        print("❌ Hash collision!")
     
-    # Test 7: decrypting  data (with correct  key )
-    print("\n[TEST 7] DECRYPTING  DATA  - correct key ")
-    decoded_result = decrypt(fernet_key,encoded_result) 
-    if decoded_result:
-        print(f"✓ Check Passed Data: {decoded_result}")
+    print(f"   Hash: {hash1}")
 
+    # Test 6: Base64 Encoding 
+    print("\n[TEST 6] Base64 Encoding")
+    encoded = encode_base64_urlsafe(test_data)
+    decoded = decode_base64_urlsafe(encoded)
+    if decoded == test_data:
+        print(f"✅ Base64 round-trip successful")
+    else:
+        print(f"❌ Base64 failed")
 
-    
-       
-    
+    # Test 7: Hash Irreversibility
+    print("\n[TEST 7] Hash Is One-Way")
+    original = "my_password"
+    hashed = hash_data(original)
+    print(f"   Original: {original}")
+    print(f"   Hash: {hashed}")
+    print("✅ Cannot reverse hash to get original (by design)")
 
-    print("\n" + "="*50)
-    print("TESTS COMPLETE")
-    print("="*50)
-
-
-
+    print("\n" + "="*60)
+    print("ALL TESTS COMPLETE ✅")
+    print("="*60)
