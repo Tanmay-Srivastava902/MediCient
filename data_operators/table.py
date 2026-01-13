@@ -85,9 +85,16 @@ def _is_column_exists(conn,table,column):
         print(False)
     pass
 
-def _is_constraint_exists(conn,table,constraint):
-
-    pass
+def _is_constraint_exists(root_conn,table,constraint_name):
+    '''It Requires Root Connection Connected Without Using any database'''
+    query = f"select * from information_schema.TABLE_CONSTRAINTS  where CONSTRAINT_NAME = %s and TABLE_NAME = %s;"
+    params = (constraint_name,table)
+    cursor = conn.cursor()
+    print(query,params)
+    cursor.execute(query,params)
+    result = cursor.fetchall() # [(table1,),(table2,)]
+    print(result)
+    return len(result) > 0   # returns true if found else false
 
 def rename_table(conn,old_name,new_name):
     query = f"alter table {old_name} rename to {new_name} ;"
@@ -275,9 +282,9 @@ def drop_default(conn,table ,column):
     conn.commit()
     cursor.close()
     
-# if __name__ == '__main__':
-#         from mysql.connector import connect
-#         conn = connect(host='localhost', user='root', password='SecurePass@1201', db='TEST')
+if __name__ == '__main__':
+        from mysql.connector import connect
+        conn = connect(host='localhost', user='root', password='SecurePass@1201',database='TEST')
 #         print("--- Running full table management test suite ---")
 #         # 1. Create table
 #         create_table(conn, 'test_table', 'id int primary key, name varchar(50)')
@@ -316,4 +323,6 @@ def drop_default(conn,table ,column):
 #         # 18. Drop table
 #         # _drop_table(conn, 'test_table')
 #         print("--- Table management test suite complete ---")
-#         conn.close()
+        print(_is_constraint_exists(conn,'test2','test2_ibfk_1'))
+        show_all_tables(conn)
+        conn.close()

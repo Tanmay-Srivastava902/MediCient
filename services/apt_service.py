@@ -2,6 +2,7 @@
 
 # requires cmd executor (utils) / (subprocess)
 def _package_version():
+    
     pass
 def is_package_installed():
     pass

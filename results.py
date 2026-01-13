@@ -1,7 +1,7 @@
 '''CONTAINS RESULTS CLASS FOR STORING RESULTS OF A FUNCTION'''
 class Result:
     '''Store results'''
-    def __init__(self ,success:bool,data:None,error_msg = None,error_code = None):
+    def __init__(self ,success:bool,data = None,error_msg=None,error_code = None):
         '''Automatically called when a object is created '''
         self.ok = success                  # wether action succeed or not 
         self.data = data                   # result of the action
@@ -20,3 +20,4 @@ class Result:
         else :
             # if error occurred
             return f"Error [{self.error_code}] : {self.error_msg}" # returns error msg with error code 
+    

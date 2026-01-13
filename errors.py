@@ -1,4 +1,4 @@
-'''CONTAINS CUSTOM ERROR CLASSES '''
+'''CONTAINS CUSTOM ERROR CLASSES AND ERROR CONSTANTS '''
 class InstallError(Exception):
     '''class for error indicating an installation of program/service is failed'''
     pass
@@ -17,3 +17,5 @@ class AlreadyExistsError(Exception):
 class DoesNotExistsError(Exception):
     '''Class for error indicating an entity file/folder/db/user/record is missing/corrupted cannot  be found'''
     pass
+class ExecutionError(Exception):
+    '''Class For all Execution errors '''

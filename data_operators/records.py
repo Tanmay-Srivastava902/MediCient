@@ -78,36 +78,41 @@ def delete_record(conn,table,where_clause:list[dict] , with_or:bool=False):
     # cursor.close()
 
 # version 5 with manual in + order by + like
-def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=False,order_by_column=None,order='asc',limit=None,offset=None):
+def select_record(conn,table,columns_list:list,where_clause:list[dict]=[],with_or=False,with_like=False,order_by_column=None,order='asc',limit=None,offset=None):
     # user ['*'] for all columns
     
-    where_list  = []
-    where_values = []
-    for where_dict in where_clause:
-        # {column:value}
-        for column,value in where_dict.items():
+    query = f"select {','.join(columns_list)} from {table} "
+    params = ()
 
-            auto_detect_in = isinstance(value,(tuple,list)) # here instance value (type tuple ) is an instance of class tuple hence True else false
-            auto_detect_like = True if '%' in value or '_' in value else False  # true if value ('_%s_','%_') is in value -> true 
+    # if where in query 
+    if where_clause or where_clause != [] :
+        where_list  = []
+        where_values = []
+        for where_dict in where_clause:
+            # {column:value}
+            for column,value in where_dict.items():
 
-            if auto_detect_in : 
-                in_clause = f"{('%s',)*len(value)}".replace('\'','') 
-                # f"('%s','%s')".replace('\'','') -> f"(%s,%s)"
-                where_list.append(f"{column} in {in_clause}")
-                where_values.extend(value)
-            elif auto_detect_like : 
-                # like %s -> like 't%' ;
-                where_list.append(f"{column} like %s")
-                where_values.append(value)
-            else:
-                # values in the where dict are not tuple just strings or numbers etc
-                where_list.append(f"{column} = %s")
-                where_values.append(value)
+                auto_detect_in = isinstance(value,(tuple,list)) # here instance value (type tuple ) is an instance of class tuple hence True else false
+                auto_detect_like = True if '%' in value or '_' in value else False  # true if value ('_%s_','%_') is in value -> true 
 
-    params = tuple(where_values)
-    conjuction = ' or ' if with_or else ' and '
-    
-    query = f"select {','.join(columns_list)} from {table} where {conjuction.join(where_list)} "
+                if auto_detect_in : 
+                    in_clause = f"{('%s',)*len(value)}".replace('\'','') 
+                    # f"('%s','%s')".replace('\'','') -> f"(%s,%s)"
+                    where_list.append(f"{column} in {in_clause}")
+                    where_values.extend(value)
+                elif auto_detect_like and with_like : 
+                    # like %s -> like 't%' ;
+                    where_list.append(f"{column} like %s")
+                    where_values.append(value)
+                else:
+                    # values in the where dict are not tuple just strings or numbers etc
+                    where_list.append(f"{column} = %s")
+                    where_values.append(value)
+
+        params = tuple(where_values)
+        conjuction = ' or ' if with_or else ' and '
+        
+        query += f" where {conjuction.join(where_list)} "
    
     # order by 
     if order_by_column:
@@ -132,7 +137,7 @@ def select_record(conn,table,columns_list:list,where_clause:list[dict],with_or=F
     pass
 if __name__ == '__main__':
     from mysql.connector import connect
-    conn = connect(host = 'localhost',user='root',password='SecurePass@1201',db='TEST')
+    conn = connect(host = 'localhost',user='root',password='SecurePass@1201',db='information_schema')
     # # insert_record(conn,'user',('uname','uaddress'),[('hello','testing_address1'),('bye','testing_address3')])
     # update_record('conn','user',{'uaddress':'nyaipur','uname':'tested_now'},[{'uid':(16,17)},{'uname':('bye','hello')}],with_or=True)
     # delete_record(conn, 'user',where_clause=[{'uid' : 3},{'uid': 10}],with_or=False) # not deleted (3 and 10) 
@@ -156,7 +161,7 @@ if __name__ == '__main__':
     # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',offset=3)
     # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',limit=2 , offset=3)
     # select_record(conn,'user',['*'],where_clause=[{'uid': 'between 10 and 17' }],with_or=True,order_by_column='uid',order='desc',limit=5 , offset=2)
-
+    select_record(conn,'TABLE_CONSTRAINTS',['*'],[{'CONSTRAINT_NAME':'fk_user_patient'},{'TABLE_NAME':'patient'}])
 
     # conn.close()
     pass
