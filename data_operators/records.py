@@ -135,9 +135,9 @@ def select_record(conn,table,columns_list:list,where_clause:list[dict]=[],with_o
     cursor.close()
 
     pass
-if __name__ == '__main__':
-    from mysql.connector import connect
-    conn = connect(host = 'localhost',user='root',password='SecurePass@1201',db='information_schema')
+# if __name__ == '__main__':
+#     from mysql.connector import connect
+#     conn = connect(host = 'localhost',user='root',password='SecurePass@1201',db='information_schema')
     # # insert_record(conn,'user',('uname','uaddress'),[('hello','testing_address1'),('bye','testing_address3')])
     # update_record('conn','user',{'uaddress':'nyaipur','uname':'tested_now'},[{'uid':(16,17)},{'uname':('bye','hello')}],with_or=True)
     # delete_record(conn, 'user',where_clause=[{'uid' : 3},{'uid': 10}],with_or=False) # not deleted (3 and 10) 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',offset=3)
     # select_record(conn,'user',['uname','uaddress'],where_clause=[{'uaddress':('nyaipur','wrong')},{'uname':'t%'}],with_or=True,order_by_column='uid',order='desc',limit=2 , offset=3)
     # select_record(conn,'user',['*'],where_clause=[{'uid': 'between 10 and 17' }],with_or=True,order_by_column='uid',order='desc',limit=5 , offset=2)
-    select_record(conn,'TABLE_CONSTRAINTS',['*'],[{'CONSTRAINT_NAME':'fk_user_patient'},{'TABLE_NAME':'patient'}])
+    # select_record(conn,'TABLE_CONSTRAINTS',['*'],[{'CONSTRAINT_NAME':'fk_user_patient'},{'TABLE_NAME':'patient'}])
 
-    # conn.close()
-    pass
+    # # conn.close()
+    # pass

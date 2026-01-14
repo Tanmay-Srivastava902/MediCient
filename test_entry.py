@@ -1,3 +1,8 @@
+
+# # =========================
+# # executor.py testing
+# # =========================
+
 # from utils import system_executor , python_executor , mysql_executor
 
 # print("="*50)
@@ -224,76 +229,273 @@
 
 
 
-#=================================
-# ENCRYPTION KEY FILE 
-#=================================
+# #=================================
+# # ENCRYPTION KEY FILE encryption.py
+# #=================================
+# import os 
+# import utils 
+# from config_managers import load_encryption_key,init_encryption_key
 
-import utils 
-from conifg_managers import load_encryption_key,init_encryption_key
+# print("="*50)
+# print("ENCRYPTION KEY TEST SUITE")
+# print("="*50)
 
+# # required key credentials
+# filepath = os.path.expanduser('~/.config/.medicient/app_encryption_key.key')
+# app_dirpath = os.path.expanduser('~/.config/.medicient')
+# config_dir_path =  os.path.expanduser('~/.config')
+
+# # checking config and medicient folder 
+# if not utils.is_dir_exists(config_dir_path):
+#     print(utils.create_dir(config_dir_path,mode=0o700))
+
+# if not utils.is_dir_exists(app_dirpath):
+#     print(utils.create_dir(app_dirpath,mode=0o700))
+
+# # Test 1:load key (key does not  exists)
+# print("\n[TEST 1] LOAD KEY - (does not  exists) ")
+# result = load_encryption_key(filepath)
+# if not result:
+#     print(f" ✓ Tested Ok key: {result}")
+
+
+# # Test 2:initialize encryption key 
+# print("\n[TEST 2] INITIALIZING KEY - (not already exists) ")
+# key1 = utils.generate_fernet_key()
+# result1 = init_encryption_key(app_dirpath,filepath,key1)
+# if result1:
+#     print(f" ✓ Tested Ok : {result1}")
+# else:
+#     print(f"❌ key does not initialized {result1}")
+
+#     # Test 3:load key (key does not  exists)
+# print("\n[TEST 3] LOAD KEY - (already exists) ")
+# result = load_encryption_key(filepath)
+# if  result:
+#     print(f" ✓ Tested Ok key: {result}")
+# else:
+#     print(f"❌ key does not Loaded {result1}")
+
+
+
+# # Test 4:initialize encryption key
+# print("\n[TEST 4] INITIALIZING KEY - (already exists) ")
+# key2 = utils.generate_fernet_key()
+# result2 = init_encryption_key(app_dirpath,filepath,key2)
+# if  result:
+#     print(f" ✓ Tested Ok : {result2}")
+# else:
+#     print(f"❌ key does not re-initialized {result1}")
+
+# # Test 4 
+#     # Test 4:load key (key does not  exists)
+# print("\n[TEST 4] LOAD KEY - (after re-initialization) ")
+# result = load_encryption_key(filepath)
+# # result must be same created successfully but not key 
+# if key1 != key2  and result1 == result2:
+#     print(f" ✓ Tested Ok : {result2}")
+#     print(f"old key : {key1}")
+#     print(f"new key : {key2}")
+
+# input("press enter to complete setup ")
+# utils.delete_dir(app_dirpath,forced=True,disable_prompt=True) # removing dir for safety
+
+# print("\n" + "="*50)
+# print("TESTS COMPLETE")
+# print("="*50)
+
+
+# #=================================
+# # INSTALL MARKER FILE install_marker.py
+# #=================================
+# import os 
+# import datetime
+# import utils 
+# from config_managers import init_install_marker , load_install_marker_data
+
+# print("="*50)
+# print("INSTALL MARKER TEST SUITE")
+# print("="*50)
+
+# # required key credentials
+# filepath = os.path.expanduser('~/.config/.medicient/install_marker.medisecure')
+# app_dirpath = os.path.expanduser('~/.config/.medicient')
+# config_dir_path =  os.path.expanduser('~/.config')
+
+# # checking config and medicient folder 
+# if not utils.is_dir_exists(config_dir_path):
+#     print(utils.create_dir(config_dir_path,mode=0o700))
+
+# if not utils.is_dir_exists(app_dirpath):
+#     print(utils.create_dir(app_dirpath,mode=0o700))
+
+# # Test 1:load Install Merer (INSTALL MARKER does not  exists)
+# print("\n[TEST 1] LOAD INSTALL MARKER - (does not  exists) ")
+# result = load_install_marker_data(filepath)
+# if not result:
+#     print(f" ✓ Tested Ok INSTALL MARKER: {result}")
+
+
+# # Test 2:initialize encryption INSTALL MARKER 
+# print("\n[TEST 2] INITIALIZING INSTALL MARKER - (not already exists) ")
+# metadata1 = {
+#   "app_name": "medicient",
+#   "version": "1.0.0",
+#   "install_time":datetime.datetime.now().isoformat(),
+#   "install_user": "curiousme",
+#   "install_path": "/home/curiousme/myproject/medicient",
+#   "system": "Linux",
+#   "python_version": "3.12.1",
+#   "marker_version": "1",
+#   "uuid": "a1b2c3d4-5678-90ab-cdef-1234567890ab"
+# }
+# result1 = init_install_marker(filepath,metadata1)
+# if result1:
+#     print(f" ✓ Tested Ok : {result1}")
+# else:
+#     print(f"❌ INSTALL MARKER does not initialized {result1}")
+
+# # Test 3:load INSTALL MARKER (INSTALL MARKER does not  exists)
+# print("\n[TEST 3] LOAD INSTALL MARKER - (already exists) ")
+# result = load_install_marker_data(filepath)
+# if  result:
+#     print(f" ✓ Tested Ok INSTALL MARKER: {result}")
+# else:
+#     print(f"❌ INSTALL MARKER does not Loaded {result1}")
+
+
+
+# # Test 4:Re-initialize INSTALL MARKER
+# print("\n[TEST 4] RE-INITIALIZING INSTALL MARKER - (already exists) ")
+# metadata2 = {
+#   "app_name": "medicient",
+#   "version": "1.0.1",
+#   "install_time":datetime.datetime.now().isoformat(),
+#   "install_user": "curiousme",
+#   "install_path": "/home/curiousme/myproject/medicient",
+#   "system": "Linux",
+#   "python_version": "3.12.1",
+#   "marker_version": "1",
+#   "uuid": "a1b2c3d4-5678-90ab-cdef-1234567890abc"
+# }
+# result2 = init_install_marker(filepath,metadata2)
+# if  result:
+#     print(f" ✓ Tested Ok : {result2}")
+# else:
+#     print(f"❌ INSTALL MARKER does not re-initialized {result1}")
+
+# # Test 4 
+#     # Test 4:load INSTALL MARKER (INSTALL MARKER exists)
+# print("\n[TEST 4] LOAD INSTALL MARKER - (after re-initialization) ")
+# result = load_install_marker_data(filepath)
+# # result must be same created successfully but not INSTALL MARKER 
+# if metadata1 != metadata2  and result1 != result2:
+#     print(f" ✓ Tested Ok : {result2}")
+#     print(f"\nold INSTALL MARKER : {metadata1}")
+#     print(f"\nnew INSTALL MARKER : {metadata2}")
+
+# input("press enter to complete setup ")
+# utils.delete_dir(app_dirpath,forced=True,disable_prompt=True) # removing dir for safety
+
+# print("\n" + "="*50)
+# print("TESTS COMPLETE")
+# print("="*50)
+
+
+# #=================================
+# # LOGGER FILE logger.py
+# #=================================
+# from config_managers import init_logger_storage , get_logged_entries ,add_log_entry
+# import os
+# import utils
+
+
+
+# print("="*50)
+# print("LOGGER TEST SUITE")
+# print("="*50)
+
+# # required key credentials
+# LOG_PATH = os.path.join(os.getcwd(),'configs/app_logger.log')
+# app_dirpath = os.path.join(os.getcwd(),'configs')
+
+# if not utils.is_dir_exists(app_dirpath):
+#     print(utils.create_dir(app_dirpath,mode=0o700))
+
+# # Test 1: Initialize logger storage
+# print("\n[TEST 1] Initialize Logger Storage")
+# result = init_logger_storage(LOG_PATH)
+# if result and result.ok:
+#     print(f"✓ Logger created: {result.data}")
+# else:
+#     print(f"❌ Failed to create logger: {result.error_msg}")
+
+# # Test 2: Add log entries
+# print("\n[TEST 2] Add Log Entries")
+# log_result1 =  add_log_entry(filepath=LOG_PATH,data="INFO: First log entry\n")
+# log_result2 =add_log_entry(filepath=LOG_PATH,data="ERROR: Something went wrong\n")
+# log_result3 = add_log_entry(filepath=LOG_PATH,data="DEBUG: Debugging info\n")
+
+# if log_result1 and log_result2 and log_result3:
+#     print("✓ Log entries added.")
+#     print()
+# else:
+#     print(f"❌ Failed to Log : {log_result1.error_msg}")
+#     print(f"❌ Failed to Log : {log_result2.error_msg}")
+#     print(f"❌ Failed to Log : {log_result3.error_msg}")
+
+# # Test 3: Read all log entries
+# print("\n[TEST 3] Read All Log Entries")
+# result = get_logged_entries(LOG_PATH)
+# if result and result.ok and result.data is not None:
+#     print("✓  Test Ok \nLog entries:")
+#     for line in result.data:
+#         print(line.strip())
+# else:
+#     print(f"❌ Failed to read log: {result.error_msg}")
+
+# # Test 4: Read last 2 log entries (if supported)
+# print("\n[TEST 4] Read Last 2 Log Entries")
+# result = get_logged_entries(LOG_PATH, number_of_lines=2)
+# if result and result.ok and result.data is not None:
+#     print("✓ Tested Ok \nLast 2 log entries:")
+#     for line in result.data:
+#         print(line.strip())
+# else:
+#     print(f"❌ Failed to read log: {result.error_msg}")
+
+# input("press enter to complete setup ")
+# # Cleanup
+# utils.delete_file(LOG_PATH) 
+
+# print("\n" + "="*50)
+# print("LOGGER TESTS COMPLETE")
+# print("="*50)
+
+# =========================
+# schema.py testing
+# =========================
+from config_managers.schema import create_database_schema
+import os
+from results import Result
 print("="*50)
-print("ENCRYPTION KEY TEST SUITE")
+print("SCHEMA CREATION TEST SUITE")
 print("="*50)
 
-# required key credentials
-filepath = 'configs/.app_key/encryption.key'
-dirpath = 'configs/.app_key'
+SCHEMA_PATH = "test_schema.sql"
 
-# Test 1:load key (key does not  exists)
-print("\n[TEST 1] LOAD KEY - (does not  exists) ")
-result = load_encryption_key(filepath)
-if not result:
-    print(f" ✓ Tested Ok key: {result}")
-
-# creating key dir for testing remaining 
-res = utils.create_dir('configs/','.app_key',700)
-print(res)
-
-# Test 2:initialize encryption key 
-print("\n[TEST 2] INITIALIZING KEY - (not already exists) ")
-key1 = utils.generate_fernet_key()
-result1 = init_encryption_key(dirpath,filepath,key1)
-if result1:
-    print(f" ✓ Tested Ok : {result1}")
+# Test 1: Create database schema file
+print("\n[TEST 1] Create Database Schema File")
+result = create_database_schema(SCHEMA_PATH)
+if result and result.ok:
+	print(f"✓ Schema file created: {result.data}")
 else:
-    print(f"❌ key does not initialized {result1}")
-
-    # Test 3:load key (key does not  exists)
-print("\n[TEST 3] LOAD KEY - (already exists) ")
-result = load_encryption_key(filepath)
-if  result:
-    print(f" ✓ Tested Ok key: {result}")
-else:
-    print(f"❌ key does not Loaded {result1}")
-
-
-
-# Test 4:initialize encryption key
-print("\n[TEST 4] INITIALIZING KEY - (already exists) ")
-key2 = utils.generate_fernet_key()
-result2 = init_encryption_key(dirpath,filepath,key2)
-if  result:
-    print(f" ✓ Tested Ok : {result2}")
-else:
-    print(f"❌ key does not re-initialized {result1}")
-
-# Test 4 
-    # Test 4:load key (key does not  exists)
-print("\n[TEST 4] LOAD KEY - (after re-initialization) ")
-result = load_encryption_key(filepath)
-# result must be same created successfully but not key 
-if key1 != key2  and result1 == result2:
-    print(f" ✓ Tested Ok : {result2}")
-    print(f"old key : {key1}")
-    print(f"new key : {key2}")
+	print(f"❌ Failed to create schema: {result.error_msg}")
 
 input("press enter to complete setup ")
-utils.delete_dir(dirpath,forced=True) # removing dir for safety
-
+# Cleanup
+if os.path.exists(SCHEMA_PATH):
+	os.remove(SCHEMA_PATH)
 print("\n" + "="*50)
-print("TESTS COMPLETE")
+print("SCHEMA TESTS COMPLETE")
 print("="*50)
-
-
-
-

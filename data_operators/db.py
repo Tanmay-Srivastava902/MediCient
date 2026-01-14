@@ -44,7 +44,7 @@ def __drop_db(conn,db):
     conn.commit()
     cursor.close()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # from mysql.connector import connect
     # conn = connect(host = 'localhost',user='root',password='SecurePass@1201')
     # create_db(conn,'hello')
@@ -64,4 +64,4 @@ if __name__ == '__main__':
     # show_db(conn)
 
     # conn.close()
-    pass
+    # pass

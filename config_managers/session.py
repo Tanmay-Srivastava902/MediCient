@@ -1,10 +1,13 @@
 '''Manages Session'''
-struct = '''
-{
-'user1' : {'name':'','host':'','password':'',db:''}
-'user2' : {'name':'','host':'','password':'',db:''}
-'user3' : {'name':'','host':'','password':'',db:''}
-'user4' : {'name':'','host':'','password':'',db:''}
+struct = '''{
+    "USER":{
+    "USER":"",
+    "HOST":"localhost",
+    "PASSWORD":"",
+    "DB":"",
+    "LOGGED_IN_AT":"",
+    "STATUS":""
+    }
 }
 '''
 # only depend on 
