@@ -20,7 +20,7 @@ def generate_fernet_key() -> bytes:
     return Fernet.generate_key()
 
 
-def _create_fernet_instance(key: bytes) -> Fernet:
+def create_fernet_instance(key: bytes) -> Fernet:
     """
     Creates a Fernet cipher instance.
     
@@ -54,7 +54,7 @@ def encrypt(key: bytes, data: str) -> bytes:
         key = generate_fernet_key()
         encrypted = encrypt(key, "secret message")
     """
-    fernet = _create_fernet_instance(key)
+    fernet = create_fernet_instance(key)
     return fernet.encrypt(data.encode())
 
 
@@ -76,7 +76,7 @@ def decrypt(key: bytes, data: bytes) -> str | None:
             print(f"Message: {decrypted}")
     """
     try:
-        fernet = _create_fernet_instance(key)
+        fernet = create_fernet_instance(key)
         return fernet.decrypt(data).decode()
     except (InvalidToken, ValueError):
         print("❌ Invalid key or corrupted data")

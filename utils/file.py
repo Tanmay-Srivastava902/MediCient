@@ -28,7 +28,7 @@ def write_txt_file(filepath,data,overwrite=False)->Result:
         return Result(
             success=False,
             error_msg=f"file already exists cannot overwrite try again with  overwrite = True",
-            error_code=300
+            error_code=402
             )
     
     with open(filepath,'w') as f :
@@ -74,7 +74,7 @@ def write_binary_file(filepath,data,overwrite=False):
         return Result(
             success=False,
             error_msg=f"file already exists cannot overwrite try again with  overwrite = True",
-            error_code=300
+            error_code=402
             )
     
     with open(filepath,'wb') as f :
@@ -108,7 +108,7 @@ def write_json_file(filepath,json_dict:dict,overwrite=False):
         return Result(
             success=False,
             error_msg=f"file already exists cannot overwrite try again with  overwrite = True",
-            error_code=300
+            error_code=402
             )
     with open(filepath,'w') as f :
         json.dump(json_dict,f)
@@ -156,7 +156,7 @@ def create_dir(parent_dirpath,dirname,mode:int=511):
         return Result(
                 success=False,
                 error_msg=f"Folder {parent_dirpath} Does Not  Exists",
-                error_code=500
+                error_code=401
         )
 
 def delete_dir(dirpath,forced=False):
@@ -180,7 +180,7 @@ def delete_dir(dirpath,forced=False):
         return Result(
                 success=False,
                 error_msg=f"Folder {dirpath} Does Not Exists",
-                error_code=500
+                error_code=401
         )
 
 
@@ -358,7 +358,7 @@ if __name__ == "__main__":
     print("\n" + "="*50)
     print("TESTS COMPLETE")
     print("="*50)
-    pass
+    
 
 
 
