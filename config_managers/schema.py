@@ -114,10 +114,6 @@ import utils
 from results import Result
 
 
-# ============================================================================
-# ONLY CHANGE: Added a simple docstring (took 2 minutes)
-# ============================================================================
-
 def create_database_schema(filepath: str) -> Result:
     """
     Creates the Medicient database schema SQL file.
