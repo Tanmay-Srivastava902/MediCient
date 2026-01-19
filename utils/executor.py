@@ -22,7 +22,7 @@ def system_executor(command, need_output=True, sudo_access=False, sudo_password=
     import subprocess
     
     if sudo_access and not sudo_password:
-        print("❌ sudo_password required for sudo commands")
+        # sudo_password required for sudo commands
         return None
     
     if sudo_access:
