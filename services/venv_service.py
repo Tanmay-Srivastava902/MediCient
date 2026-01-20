@@ -1,13 +1,15 @@
+"""
+OPERATES ON VENV SERVICES RELATED TO PYTHON VIRTUAL ENVIRONMENT
+"""
 from utils import executor
 from results import Result
-def is_venv_exists() -> bool :
-   '''Checks the venv presence'''
-   try:
-      import venv
-      return True
-   except (ModuleNotFoundError,ImportError):
-      return False
-   
+def is_using_venv()-> bool:
+    import sys
+    return (
+        hasattr(sys, 'real_prefix') or
+        (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+    )
+
 def install_venv(sudo_password):
    '''Installs the venv python virtual environment manager
    Args:
@@ -95,6 +97,15 @@ def create_venv(dirpath,venv_name):
 #==============================
 # VIRTUAL ENV MANAGEMENT
 #==============================
+def install_venv_dependencies(venv_path,filepath):
+   '''
+   Install All Dependencies To The Given Python Venv Via The Given Requirement file 
+   :params venv_path: path to the venv folder with its name 
+   :type venv_path: str
+   :params filepath: path to the requirements file where the requirements are kept
+   '''
+   pass
+
 def start_venv(venv_path:str,script_path:str,restart_delay:int):
    '''
    Starts The App Inside A Python Virtual Environment
@@ -109,17 +120,20 @@ def start_venv(venv_path:str,script_path:str,restart_delay:int):
    '''
    import sys
    import os 
-   import subprocess
+   # import subprocess
    
    # getting paths 
    python_path = os.path.join(venv_path,'bin/python')
 
    # scheduling python 
    try:
-      # & in last is to keep the process alive after start of the script 
-      cmd  = f"sleep {restart_delay} && {python_path} {script_path}"
-      subprocess.call(cmd,shell=True,start_new_session=True)
-      sys.exit(0)
+      # & in last is to keep the process alive after start of the script
+      import time 
+      for i in range(restart_delay+1):
+         print(f"restarting in {restart_delay-i} seconds")
+         time.sleep(1)
+
+      os.execv(python_path, [python_path, script_path])
    except Exception as e:
       return Result(
          success=False,
@@ -130,11 +144,14 @@ def start_venv(venv_path:str,script_path:str,restart_delay:int):
 
 # if __name__ == '__main__':
 #    try: 
+#       print('an i in venv expected false? ',is_using_venv())
 #       start_venv(
 #          venv_path='/home/curiousme/myproject/medicient/medicient',
-#          script_path='/home/curiousme/myproject/medicient/test_entry.py',
+#          script_path='/home/curiousme/myproject/medicient/test_venv_entry.py',
 #          restart_delay=3
 #       )
+#       print('am i in venv expected false? ' , is_using_venv())
+
 #       print('exited')
 #    except Exception as e:
 #       print(e)

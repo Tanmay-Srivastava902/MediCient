@@ -142,7 +142,7 @@ def restart_service(service,sudo_password):
         Result : service restarted if result.returncode is 0 else 301 could not restart 302 Not installed 
     '''
     try:
-        cmd = ['systemctl','start',service]
+        cmd = ['systemctl','restart',service]
         result = utils.system_executor(
             command=cmd,
             sudo_access=True,

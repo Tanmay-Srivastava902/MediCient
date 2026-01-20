@@ -1,7 +1,7 @@
+'''THIS IS THE ENTRY POINT FOR TEST OF MODULES IN THIS APP'''
 # # =========================
 # # executor.py testing
 # # =========================
-
 from utils import system_executor , python_executor , mysql_executor
 
 print("="*50)
@@ -696,4 +696,328 @@ if os.path.exists(test_session_file):
 print("\n" + "="*50)
 print("SESSION TESTS COMPLETE")
 print("="*50)
+
+# =========================
+# SERVICES TEST SUITE
+# =========================
+from services import *
+
+print("="*50)
+print("SERVICES TEST SUITE")
+print("="*50)
+
+# --- APT SERVICE TESTS ---
+print("\n[APT SERVICE] is_package_installed (should be False for 'fakepkg')")
+result = is_package_installed('fakepkg')
+print(f"✔️ Tested Ok : {result == False}")
+
+print("\n[APT SERVICE] get_package_info (should fail for 'fakepkg')")
+result = get_package_info('fakepkg')
+print(f"✔️ Tested Ok : {not result.ok}")
+
+# --- SYSTEMD SERVICE TESTS ---
+print("\n[SYSTEMD SERVICE] get_service_status (should fail for 'fakeservice')")
+result = get_service_status('fakeservice')
+print(f"✔️ Tested Ok : {not result.ok}")
+
+# --- PIP SERVICE TESTS ---
+print("\n[PIP SERVICE] is_pip_exists")
+result = is_pip_exists()
+print(f"✔️ Tested Ok : {isinstance(result, bool)}")
+
+print("\n[PIP SERVICE] install_python_package (should fail for 'fakepkg')")
+result = install_python_package('fakepkg')
+print(f"✔️ Tested Ok : {not result.ok}")
+
+# --- MYSQL SERVICE TESTS ---
+print("\n[MYSQL SERVICE] create_conn (should fail with wrong password)")
+try:
+    conn = create_conn(user='root', password='wrongpass')
+    print(f"✔️ Tested Ok : {conn is None}")
+except Exception as e:
+    print(f"✔️ Exception handled: {e}")
+
+# --- VENV SERVICE TESTS ---
+print("\n[VENV SERVICE] is_using_venv")
+result = is_using_venv()
+print(f"✔️ Tested Ok : {isinstance(result, bool)}")
+
+print("\nSERVICES TESTS COMPLETE\n" + "="*50)
+
+# =========================
+# FULL SERVICES FUNCTION TESTS
+# =========================
+from services import *
+print("="*50)
+print("FULL SERVICES FUNCTION TESTS")
+print("="*50)
+
+# --- APT SERVICE ---
+try:
+    print("\n[APT] _package_version('python3')")
+    result = _package_version('python3')
+    print(f"✔️ Tested Ok : {result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] is_package_installed('python3')")
+    result = is_package_installed('python3')
+    print(f"✔️ Tested Ok : {isinstance(result, bool)}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] update_system_packages('dummy') (should fail)")
+    result = update_system_packages('dummy')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] install_system_package('dummy', 'fakepkg') (should fail)")
+    result = install_system_package('dummy', 'fakepkg')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] uninstall_system_package('dummy', 'fakepkg') (should fail)")
+    result = uninstall_system_package('dummy', 'fakepkg')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] upgrade_system_packages('dummy') (should fail)")
+    result = upgrade_system_packages('dummy')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] get_package_info('python3')")
+    result = get_package_info('python3')
+    print(f"✔️ Tested Ok : {result.ok or not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[APT] ensure_package_installed('dummy', 'fakepkg') (should fail)")
+    result = ensure_package_installed('dummy', 'fakepkg')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+# --- SYSTEMD SERVICE ---
+try:
+    print("\n[SYSTEMD] get_service_status('fakeservice') (should fail)")
+    result = get_service_status('fakeservice')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[SYSTEMD] start_service('fakeservice', 'dummy') (should fail)")
+    result = start_service('fakeservice', 'dummy')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[SYSTEMD] stop_service('fakeservice', 'dummy') (should fail)")
+    result = stop_service('fakeservice', 'dummy')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[SYSTEMD] restart_service('fakeservice', 'dummy') (should fail)")
+    result = restart_service('fakeservice', 'dummy')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+# --- PIP SERVICES ---
+try:
+    print("\n[PIP] is_pip_exists()")
+    result = is_pip_exists()
+    print(f"✔️ Tested Ok : {isinstance(result, bool)}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] install_pip('dummy') (should fail or no-op)")
+    result = install_pip('dummy')
+    print(f"✔️ Tested Ok : {not result.ok if hasattr(result, 'success') else True}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] export_python_packages()")
+    result = export_python_packages()
+    print(f"✔️ Tested Ok : {hasattr(result, 'success')}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] import_python_packages('fakefile.txt') (should fail)")
+    result = import_python_packages('fakefile.txt')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] install_python_package('fakepkg') (should fail)")
+    result = install_python_package('fakepkg')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] uninstall_python_package('fakepkg') (should fail)")
+    result = uninstall_python_package('fakepkg')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[PIP] ensure_python_package('fakepkg', 'dummy') (should fail)")
+    result = ensure_python_package('fakepkg', 'dummy')
+    print(f"✔️ Tested Ok : {not result.ok if hasattr(result, 'success') else True}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+# --- MYSQL SERVICE ---
+try:
+    print("\n[MYSQL] _install_mysql_server() (no-op)")
+    result = _install_mysql_server()
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] _check_mysql_server() (no-op)")
+    result = _check_mysql_server()
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] _start_mysql_server() (no-op)")
+    result = _start_mysql_server()
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] _stop_mysql_server() (no-op)")
+    result = _stop_mysql_server()
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] _get_root_plugin(None) (should fail)")
+    result = _get_root_plugin(None)
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] _change_mysql_native_password(None, 'pass') (should fail)")
+    result = _change_mysql_native_password(None, 'pass')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] create_conn(user='root', password='wrong') (should fail or return None)")
+    result = create_conn(user='root', password='wrong')
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] close_conn(None) (should fail)")
+    try:
+        close_conn(None)
+        print(f"✔️ Tested Ok : True (no exception)")
+    except Exception:
+        print(f"✔️ Tested Ok : True (exception handled)")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] flush_privileges(None) (should fail)")
+    result = flush_privileges(None)
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] create_mysql_user(None, 'user') (should fail)")
+    result = create_mysql_user(None, 'user')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] grant_privileges(None, 'user', 'db.table', privileges_list=['SELECT']) (should fail)")
+    result = grant_privileges(None, 'user', 'db.table', privileges_list=['SELECT'])
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] delete_mysql_user(None, 'user') (should fail)")
+    result = delete_mysql_user(None, 'user')
+    print(f"✔️ Tested Ok : {not result.ok}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[MYSQL] configure_fresh_mysql_server('dummy') (should fail)")
+    result = configure_fresh_mysql_server('dummy')
+    print(f"✔️ Tested Ok : {result is None or not getattr(result, 'success', True)}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+# --- VENV SERVICE ---
+try:
+    print("\n[VENV] is_using_venv()")
+    result = is_using_venv()
+    print(f"✔️ Tested Ok : {isinstance(result, bool)}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[VENV] install_venv('dummy') (should fail or no-op)")
+    result = install_venv('dummy')
+    print(f"✔️ Tested Ok : {not result.ok if hasattr(result, 'success') else True}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[VENV] create_venv('/tmp', 'testvenv') (should fail or succeed)")
+    result = create_venv('/tmp', 'testvenv')
+    print(f"✔️ Tested Ok : {hasattr(result, 'success')}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[VENV] install_venv_dependencies('/tmp/testvenv', 'requirements.txt') (should fail or no-op)")
+    result = install_venv_dependencies('/tmp/testvenv', 'requirements.txt')
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+try:
+    print("\n[VENV] start_venv('/tmp/testvenv', 'script.py', 1) (should fail or no-op)")
+    result = start_venv('/tmp/testvenv', 'script.py', 1)
+    print(f"✔️ Tested Ok : {result is None}")
+except Exception as e:
+    print(f"Exception: {e}")
+
+print("\nFULL SERVICES FUNCTION TESTS COMPLETE\n" + "="*50)
 

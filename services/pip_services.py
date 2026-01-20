@@ -55,15 +55,14 @@ def install_pip(sudo_password)->Result:
 #========================
 # Package Transmission Controller
 #========================
-def export_python_packages(filepath)-> Result:
-   '''Exports the currently installed python packages to given location
-   Args:
-      filepath: location of export file with full name and extension
-   Returns:
-      Result: self.ok if exported else not self.ok and error_code,error_msg
+def export_python_packages()-> Result:
+   '''
+   Exports the currently installed python packages to given location
+
+   :returns Result: [**packages_string in result.data**] if self.ok  exported else not self.ok and error_code,error_msg
    '''
    try:
-      cmd  = ['pip','freeze','>',filepath]
+      cmd  = ['pip','freeze']
       result = utils.system_executor(
          command=cmd,
          need_output=True,
@@ -78,13 +77,13 @@ def export_python_packages(filepath)-> Result:
       if result.returncode == 0 :
          return Result(
             success=True,
-            data=f"Exported To {filepath}"
+            data=result.stdout  # result to ve saved 
          )
       else:
          return Result(
             success=False,
             error_code=100,
-            error_msg=result.stderr
+            error_msg=result.stderr # result is given back 
          )
    except Exception as e :
       return Result(
@@ -101,7 +100,7 @@ def import_python_packages(filepath):
       Result: self.ok if exported else not self.ok and error_code,error_msg
    '''
    try:
-      cmd  = ['pip','install',filepath]
+      cmd  = ['pip','install','-r',filepath]
       result = utils.system_executor(
          command=cmd,
          need_output=True,
@@ -182,7 +181,7 @@ def uninstall_python_package(package):
       Result: self.ok if installed Else not self.ok 
    '''
    try:
-      cmd = ['pip','uninstall',package]
+      cmd = ['pip','uninstall','-y',package]
       result = utils.system_executor(
          command=cmd,
          sudo_access=False

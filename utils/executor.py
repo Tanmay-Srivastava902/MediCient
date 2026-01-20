@@ -1,5 +1,5 @@
 '''EXECUTE COMMANDS AND QUERIES - Complete Executor Layer'''
-
+# NOTE remove this sudo_access flag  directly use sudo_password instead
 def system_executor(command, need_output=True, sudo_access=False, sudo_password=None):
     """
     Execute system commands

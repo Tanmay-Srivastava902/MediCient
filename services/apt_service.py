@@ -97,7 +97,7 @@ def update_system_packages(sudo_password: str) -> Result:
         if result.ok:
             print("Package lists updated")
     """
-    cmd = ['apt', 'update']
+    cmd = ['apt', 'update','-y']
     result = utils.system_executor(
         command=cmd,
         sudo_access=True,
@@ -124,15 +124,13 @@ def update_system_packages(sudo_password: str) -> Result:
         )
 
 
-def install_system_package(sudo_password: str, package: str, 
-                          auto_yes: bool = True) -> Result:
+def install_system_package(sudo_password: str, package:str) -> Result:
     """
     Installs a system package via APT.
     
     Args:
         sudo_password: User's sudo password
         package: Package name to install
-        auto_yes: Automatically answer 'yes' to prompts
     
     Returns:
         Result: Success if installed, failure otherwise
@@ -145,10 +143,7 @@ def install_system_package(sudo_password: str, package: str,
         if result.ok:
             print(f"{package} installed successfully")
     """
-    cmd = ['apt', 'install']
-    if auto_yes:
-        cmd.append('-y')
-    cmd.append(package)
+    cmd = ['apt', 'install','-y',package]
     
     result = utils.system_executor(
         command=cmd,
@@ -176,15 +171,13 @@ def install_system_package(sudo_password: str, package: str,
         )
 
 
-def uninstall_system_package(sudo_password: str, package: str,
-                             auto_yes: bool = True) -> Result:
+def uninstall_system_package(sudo_password: str, package: str) -> Result:
     """
     Uninstalls a system package via APT.
     
     Args:
         sudo_password: User's sudo password
         package: Package name to uninstall
-        auto_yes: Automatically answer 'yes' to prompts
     
     Returns:
         Result: Success if uninstalled, failure otherwise
@@ -197,10 +190,7 @@ def uninstall_system_package(sudo_password: str, package: str,
         if result.ok:
             print(f"{package} uninstalled")
     """
-    cmd = ['apt', 'remove']
-    if auto_yes:
-        cmd.append('-y')
-    cmd.append(package)
+    cmd = ['apt', 'remove','-y',package]
     
     result = utils.system_executor(
         command=cmd,
