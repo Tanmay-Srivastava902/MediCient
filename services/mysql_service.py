@@ -45,7 +45,7 @@ def _get_root_plugin(root_conn):
 def _change_mysql_native_password(root_conn,new_password:str,host:str='localhost'):
     '''changes mysql root user password'''
     try:
-        query = F"ALTER USER 'root'@{host} IDENTIFIED WITH mysql_native_password BY %s;"
+        query = f"ALTER USER 'root'@'{host}' IDENTIFIED WITH mysql_native_password BY %s;"
         params = (new_password,)
         utils.mysql_executor(root_conn,query,params)
         # password changed
