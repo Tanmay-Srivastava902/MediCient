@@ -2,9 +2,7 @@
 import utils
 from results import Result
 import os
-
 struct  = {}
-# only depend on 
 def init_password_storage(filepath):
     try:
         # checking parent folder
@@ -12,7 +10,7 @@ def init_password_storage(filepath):
         if not utils.is_dir_exists(parent_folder):
             return Result(
                 success=False,
-                error_code=401,
+                error_code=Result.FOLDER_NOT_FOUND_ERROR,
                 error_msg=f"Directory Does Not Exists {parent_folder}"
             )
         # creating Password Storage 
@@ -25,7 +23,7 @@ def init_password_storage(filepath):
         if not result:
             return Result(
                 success=False,
-                error_code=410,
+                error_code=Result.GENERAL_FILE_ERROR,
                 error_msg=f"Cannot Write File : {result.error_msg}"
             )
         # send result 
@@ -36,7 +34,7 @@ def init_password_storage(filepath):
     except Exception as e:
         return Result(
             success=False,
-            error_code=410,
+            error_code=Result.GENERAL_FILE_ERROR,
             error_msg=f"Unexpected error: {str(e).strip()}"
         )
     
@@ -46,7 +44,7 @@ def get_password(filepath,user):
         if not utils.is_file_exists(filepath):
             return Result(
                 success=False,
-                error_code=404,
+                error_code=Result.FILE_NOT_FOUND_ERROR ,
                 error_msg="Password File Not Found"
             )
         
@@ -57,7 +55,7 @@ def get_password(filepath,user):
         if not password_dict:
             return Result(
                 success= False,
-                error_code=410,
+                error_code=Result.GENERAL_FILE_ERROR,
                 error_msg=f"Cannot Read Password File {password_dict.error_msg}"
             )
        
@@ -79,27 +77,28 @@ def get_password(filepath,user):
     except Exception as e :
         return Result(
             success=False,
-            error_code=410,
+            error_code=Result.GENERAL_FILE_ERROR,
             error_msg=f"Unexpected Error {str(e).strip()}"
         )
-            
+    
 def update_password(filepath,user,password):
     try:
         # file does not exists 
         if not utils.is_file_exists(filepath):
             return Result(
                 success=False,
-                error_code=404,
+                error_code=Result.FILE_NOT_FOUND_ERROR ,
                 error_msg="Password File Not Found"
             )
         
         result = utils.read_binary_file(filepath,raw_data=False)
+        
 
          # cannot read
         if not result.ok :
             return Result(
                 success= False,
-                error_code=410,
+                error_code=Result.GENERAL_FILE_ERROR,
                 error_msg=f"Cannot Read Password File {result.error_msg}"
             )
         
@@ -111,7 +110,7 @@ def update_password(filepath,user,password):
         else:
             return Result(
                 success= False,
-                error_code=410,
+                error_code=Result.GENERAL_FILE_ERROR,
                 error_msg=f"No Password Data Found File May Be Corrupted {result.error_msg}"
             )
         
@@ -125,7 +124,7 @@ def update_password(filepath,user,password):
         if not result:
             return Result(
                 success=False,
-                error_code=410,
+                error_code=Result.GENERAL_FILE_ERROR,
                 error_msg=f"Cannot Update Password Storage : {result.error_msg}"
             )
         
@@ -138,6 +137,6 @@ def update_password(filepath,user,password):
     except Exception as e:
         return Result(
             success=False,
-            error_code=410,
+            error_code=Result.GENERAL_FILE_ERROR,
             error_msg=f"Unexpected error: {str(e).strip()}"
         )

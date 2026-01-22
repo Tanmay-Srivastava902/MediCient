@@ -1,6 +1,12 @@
 '''EXECUTE COMMANDS AND QUERIES - Complete Executor Layer'''
 # NOTE remove this sudo_access flag  directly use sudo_password instead
-def system_executor(command, need_output=True, sudo_access=False, sudo_password=None):
+import errors
+import subprocess
+def system_executor(
+    command,
+    sudo_access=False, 
+    sudo_password:str=''
+    )->subprocess.CompletedProcess:
     """
     Execute system commands
     
@@ -19,27 +25,29 @@ def system_executor(command, need_output=True, sudo_access=False, sudo_password=
         system_executor(['systemctl', 'start', 'mysql'], 
                        sudo_access=True, sudo_password='pass')
     """
-    import subprocess
-    
-    if sudo_access and not sudo_password:
-        # sudo_password required for sudo commands
-        return None
-    
-    if sudo_access:
-        cmd_with_sudo = ['sudo', '-S'] + command
-        return subprocess.run(
-            cmd_with_sudo,
-            input=f"{sudo_password}\n",
-            capture_output=need_output,
-            text=need_output
+    try:
+        if sudo_access:
+            cmd = ['sudo', '-S'] + command
+            # Include newline so sudo knows password is complete
+            input_data = (sudo_password + '\n').encode()
+        else:
+            cmd = command
+            input_data = None
+        
+        result = subprocess.run(
+            cmd,
+            input=input_data,
+            capture_output=True,
+            text=True,
+            timeout=30
         )
-    else:
-        return subprocess.run(
-            command,
-            capture_output=need_output,
-            text=need_output
-        )
-
+        
+        return result
+    
+    except subprocess.TimeoutExpired as e:
+        raise errors.ExecutionError(f"Command timeout: {str(e)}")
+    except Exception as e:
+        raise errors.ExecutionError(f"Execution failed: {str(e)}")
 
 def python_executor(command, run_module=False, interactive_mode=False, need_output=True):
     """
@@ -86,8 +94,7 @@ def python_executor(command, run_module=False, interactive_mode=False, need_outp
         text=need_output
     )
 
-
-def mysql_executor(conn, query, params=()):
+def mysql_executor(conn, query, params=())->list[tuple]:
     """
     Execute MySQL queries
     
@@ -98,14 +105,14 @@ def mysql_executor(conn, query, params=()):
     
     Returns:
         list[tuple]: For SELECT queries
-        None: For other queries (INSERT/UPDATE/DELETE)
+        []: '' For other queries (INSERT/UPDATE/DELETE)
     
     Examples:
         # SELECT
-        rows = mysql_executor(conn, "SELECT * FROM users WHERE id = %s", (5,))
+        rows = execute_query(conn, "SELECT * FROM users WHERE id = %s", (5,))
         
         # INSERT
-        mysql_executor(conn, "INSERT INTO users (name) VALUES (%s)", ('John',))
+        execute_query(conn, "INSERT INTO users (name) VALUES (%s)", ('John',))
     """
     cursor = conn.cursor()
     cursor.execute(query, params)
@@ -120,7 +127,42 @@ def mysql_executor(conn, query, params=()):
         # For INSERT/UPDATE/DELETE
         conn.commit()
         cursor.close()
-        return None
+        return [tuple()] # return blank list[tuple]  
+
+# def mysql_executor(conn, query, params=()):
+#     """
+#     Execute MySQL queries
+    
+#     Args:
+#         conn: MySQL connection object
+#         query: SQL query string
+#         params: Tuple of parameters for parameterized queries
+    
+#     Returns:
+#         list[tuple]: For SELECT queries
+#         None: For other queries (INSERT/UPDATE/DELETE)
+    
+#     Examples:
+#         # SELECT
+#         rows = mysql_executor(conn, "SELECT * FROM users WHERE id = %s", (5,))
+        
+#         # INSERT
+#         mysql_executor(conn, "INSERT INTO users (name) VALUES (%s)", ('John',))
+#     """
+#     cursor = conn.cursor()
+#     cursor.execute(query, params)
+    
+#     # Check if it's a query that returns data
+#     first_word = query.strip().split()[0].lower() 
+#     if first_word in ['select', 'show', 'describe', 'desc', 'explain']:
+#         result = cursor.fetchall()
+#         cursor.close()
+#         return result
+#     else:
+#         # For INSERT/UPDATE/DELETE
+#         conn.commit()
+#         cursor.close()
+#         return None
 
 
 # ============================================

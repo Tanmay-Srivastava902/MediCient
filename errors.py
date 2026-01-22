@@ -5,6 +5,11 @@ class InstallError(Exception):
 class AuthError(Exception):
     '''Class for error indicating wrong credential leading to failed authentication needs retied'''
     pass
+class InvalidArgumentError(Exception):
+    '''Class for error indicating wrong parameters given'''
+    pass
+class MysqlConnectionError(Exception):
+    '''Class for error indicating could not connect due to general connector problem'''
 class MaxAttemptError(Exception):
     '''Class for error indicating no attempts left'''
     pass
@@ -18,4 +23,26 @@ class DoesNotExistsError(Exception):
     '''Class for error indicating an entity file/folder/db/user/record is missing/corrupted cannot  be found'''
     pass
 class ExecutionError(Exception):
-    '''Class For all Execution errors '''
+    '''Class For all Execution errors indicating the problem in subprocess or executor '''
+    pass
+# class ServiceStartError(Exception):
+#     '''Class For error indicating could not start a service '''
+# class ServiceStopError(Exception):
+#     '''Class For error indicating could not stop a service '''
+# class ServiceRestartError(Exception):
+#     '''Class For error indicating could not restart a service '''
+class ServiceError(Exception):
+    '''Class For all error indicating systemd failure '''
+    pass
+class PipError(Exception):
+    '''Class For all error indicating pip failure '''
+    pass
+class PackageError(Exception):
+    '''Class For all error indicating Package failure '''
+    pass
+class AptError(Exception):
+    '''Class For all error indicating Package failure '''
+    pass
+class VenvError(Exception):
+    '''Class For all error indicating Venv failure '''
+    pass

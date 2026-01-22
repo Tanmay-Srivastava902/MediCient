@@ -1,298 +1,324 @@
-'''CONTAINS MYSQL SERVER RELATED FUNCTIONS'''
-# mysql server
-from mysql.connector import connect , ProgrammingError,InterfaceError,IntegrityError
+'''CONTAINS ALL MYSQL SERVER RELATED FUNCTIONS'''
+
+from mysql.connector import connect, ProgrammingError, InterfaceError
 import utils
-from results import Result
-# may require package_manager
-def _install_mysql_server():
-    pass
-# may require service_manager
-def _check_mysql_server():
-    pass
-def _start_mysql_server():
-    pass
-def _stop_mysql_server():
-    pass
+import errors
 
-# requires system executor (subprocess) and session
-# mysql root 
-def _get_root_plugin(root_conn):
-    # '''gets the auth method of root (for newly installed mysql server)'''
-    try:
-        query = F"SELECT plugin FROM mysql.user where user = %s;"
-        params = ('root',)
-        result = utils.mysql_executor(root_conn,query,params)
-        if result is None:
-            return Result(
-            success=False,
-            error_code=100,
-            error_msg=f"could not execute : Select queries insert or update query detected"
-        )
-        # found plugin
-        return Result(
-            success=True,
-            data=result[0] # result = ('auth_plugin',) -> auth_plugin
-        )
-    # not found
-    except Exception as e:
-        return Result(
-            success=False,
-            error_code=300,
-            error_msg=f"Unknown Error {str(e).strip()}"
-        )
-        
-    
-def _change_mysql_native_password(root_conn,new_password:str,host:str='localhost'):
-    '''changes mysql root user password'''
-    try:
-        query = f"ALTER USER 'root'@'{host}' IDENTIFIED WITH mysql_native_password BY %s;"
-        params = (new_password,)
-        utils.mysql_executor(root_conn,query,params)
-        # password changed
-        return Result(
-            success=True,
-            data=f"Mysql Password Changed"
-        )
-    except Exception as e:
-        return Result(
-            success=False,
-            error_code=100,
-            error_msg=f"could not execute {str(e).strip()}"
-        )
-    
+# ============================================================================
+# SERVER MANAGEMENT
+# ============================================================================
 
+def _install_mysql_server(sudo_password: str) -> None:
+    '''Install MySQL Server'''
+    try:
+        cmd = ['apt', 'install', '-y', 'mysql-server']
+        result = utils.system_executor(
+            command=cmd,
+            sudo_access=True,
+            sudo_password=sudo_password
+        )
+        if result.returncode != 0:
+            raise errors.InstallError(f"could not install : {result.stderr}")
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+def _mysql_server_status() -> int:
+    '''
+    Check MySQL Server Status
+    
+    Returns:
+        returncode: 0 if running, else if not running
+    '''
+    try:
+        cmd = ['systemctl', 'status', 'mysql']
+        result = utils.system_executor(command=cmd, sudo_access=False)
+        return result.returncode
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+def _start_mysql_server(sudo_password: str) -> None:
+    '''Start MySQL Server'''
+    try:
+        cmd = ['systemctl', 'start', 'mysql']
+        result = utils.system_executor(
+            command=cmd,
+            sudo_access=True,
+            sudo_password=sudo_password
+        )
+        if result.returncode != 0:
+            raise errors.ServiceError(f"could not start : {result.stderr}")
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+def _stop_mysql_server(sudo_password: str) -> None:
+    '''Stop MySQL Server'''
+    try:
+        cmd = ['systemctl', 'stop', 'mysql']
+        result = utils.system_executor(
+            command=cmd,
+            sudo_access=True,
+            sudo_password=sudo_password
+        )
+        if result.returncode != 0:
+            raise errors.ServiceError(f"could not stop : {result.stderr}")
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+def _restart_mysql_server(sudo_password: str) -> None:
+    '''Restart MySQL Server'''
+    try:
+        cmd = ['systemctl', 'restart', 'mysql']
+        result = utils.system_executor(
+            command=cmd,
+            sudo_access=True,
+            sudo_password=sudo_password
+        )
+        if result.returncode != 0:
+            raise errors.ServiceError(f"could not restart : {result.stderr}")
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+# ============================================================================
+# CONNECTION MANAGEMENT
+# ============================================================================
 
 def create_conn(
-        user:str='root',
-        password:str='',
-        host:str='localhost',
-        use_db:bool=False,
-        db:str=''
-    ):
+    user: str = 'root',
+    password: str = '',
+    host: str = 'localhost',
+    db: str = ''
+):
     '''
-    Creates a connection with the mysql server from the given user root connection by default with the blank password default else the password provided
+    Create MySQL connection
     
-    :param user: username of connection default [root]
-    :type user: str
-    :param pwd: password for user default [blank]
-    :type pwd: str
-    :param host: mysql host default [localhost]
-    :type host: str
-    :param use_db: true for using  db else false default[false]
-    :type use_db: bool
-    :param db: db_name for use_db = True
-    :type db: str
-    :returns MysqlConnectionObject: the object used further 
-    :returns None: when db is not provided for use_db = True
-    '''
-    if use_db and not db:
-        return None # please provide db for use_db=true
+    Args:
+        user: MySQL username (default: root)
+        password: MySQL password (default: empty)
+        host: MySQL host (default: localhost)
+        db: Database name (default: empty - no specific db)
     
-    # with db 
-    if use_db:
-        return connect(host=host,user=user,password=password,database=db)
+    Returns:
+        MySQL connection object
     
-    # default 
-    return connect(host=host,user=user,password=password)
-
-
-
-def close_conn(conn,commit:bool=True):
-    '''
-    Closes the mysql connection
-    
-    :param conn: MysqlConnectionObject to close 
-    :param commit: wether to commit before close or not 
-    '''
-    if not commit :
-        return conn.close()
-    conn.commit()
-    return conn.close()
-def flush_privileges(root_conn):
-    '''
-    Docstring for flush_privileges
-    
-    :param conn: connection for which to flush privileges
+    Raises:
+        AuthError: If authentication fails
+        MysqlConnectionError: If connection fails
     '''
     try:
-
-        query = f"FLUSH PRIVILEGES;"
-        # execution
-        result =  utils.mysql_executor(conn=root_conn,query=query)
-        if result is not  None:
-           return Result(
-                success=False,
-                error_code=100,
-                error_msg=f"Wrong Query Insert/Update Detected During User Flushing Privileges"
-            )
-        # if result is none successful Execution
-        return Result(
-            success=True,
-            data=f"Privileges Reloaded"
-        )
+        if db:
+            return connect(host=host, user=user, password=password, database=db)
+        else:
+            return connect(host=host, user=user, password=password)
+    except (InterfaceError, ProgrammingError):
+        raise errors.AuthError(f"Wrong password for user '{user}'")
     except Exception as e:
-         return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Unknown Error : {str(e).strip()}"
-            )
+        raise errors.MysqlConnectionError(f"could not connect : {str(e).strip()}")
 
-    
 
-# mysql user 
-# require executors (after login in mysql shell queries)
-def create_mysql_user(
-        root_conn,
-        user:str,
-        host:str='localhost',
-        with_password:bool=False,
-        password:str=''
-    )-> Result:
+def close_conn(conn, commit: bool = True) -> None:
     '''
-    Docstring for create_mysql_user
+    Close MySQL connection
     
-    :param root_conn: the connection made using root account 
-    :param user: username for  the user to create 
-    :type user: str
-    :param with_password: wether to set password for the user or not 
-    :type with_password: bool
-    :param password: password to set for the given user during creation[if with_password = True]
+    Args:
+        conn: MySQL connection object
+        commit: Whether to commit before closing (default: True)
+    '''
+    if commit:
+        conn.commit()
+    conn.close()
+
+
+# ============================================================================
+# USER OPERATIONS
+# ============================================================================
+
+def create_mysql_user(
+    root_conn,
+    user: str,
+    host: str = 'localhost',
+    password: str = ''
+) -> None:
+    '''
+    Create MySQL user
+    
+    Args:
+        root_conn: MySQL connection with root privileges
+        user: Username to create
+        host: Host permission (default: localhost)
+        password: User password (default: empty - no password)
+    
+    Raises:
+        ExecutionError: If user creation fails
     '''
     try:
-        # params check
-        if with_password and not password:
-            return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Password Not Provided"
-            )
-        
-        # preparing query 
-        if with_password:
+        if password:
             query = f"CREATE USER IF NOT EXISTS '{user}'@'{host}' IDENTIFIED BY %s ;"
             params = (password,)
         else:
             query = f"CREATE USER '{user}'@'{host}';"
             params = tuple()
-        # execution
-        result =  utils.mysql_executor(conn=root_conn,query=query,params=params)
-        if result is not  None:
-           return Result(
-                success=False,
-                error_code=100,
-                error_msg=f"Wrong Query Insert/Update Detected During User Creation"
-            )
-        # if result is none successful Execution
-        return Result(
-            success=True,
-            data=f"{user} Create Successfully"
-        )
+        
+        utils.mysql_executor(conn=root_conn, query=query, params=params)
     except Exception as e:
-         return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Unknown Error : {str(e).strip()}"
-            )
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
 def grant_privileges(
-        root_conn,
-        user:str,
-        object_name:str,
-        host:str='localhost',
-        all_privileges:bool=False,
-        privileges_list:list=[]
-    )-> Result:
+    root_conn,
+    user: str,
+    object_name: str,
+    host: str = 'localhost',
+    all_privileges: bool = False,
+    privileges_list: list = []
+) -> None:
     '''
-    Docstring for grant_privileges
+    Grant privileges to MySQL user
     
-    :param root_conn: MysqlCOnnectionObject from root account
-    :param user: Description
-    :type user: str
-    :param object_name: name of the object on which the privileges are to be given eg-[**database.table**] 
-    :type object_name: str
-    :param host: hostname from which the user is connected default [**localhost**]
-    :type host: str
-    :param all_privileges: wether to provide all privileges to the given user or not default [**False**] 
-    :type all_privileges: bool
-    :param privileges_list: list of privileges to provide to the given user eg- ['privilege1','privilege2']
-    :type privileges_list: list
+    Args:
+        root_conn: MySQL connection with root privileges
+        user: Username to grant privileges to
+        object_name: Target (e.g., 'database.*' or 'database.table')
+        host: Host permission (default: localhost)
+        all_privileges: Grant ALL PRIVILEGES (default: False)
+        privileges_list: List of specific privileges if all_privileges=False
+    
+    Raises:
+        InvalidArgumentError: If privileges not specified properly
+        ExecutionError: If privilege grant fails
     '''
+    if not all_privileges and not privileges_list:
+        raise errors.InvalidArgumentError("Provide privilege list when all_privileges=False")
+    
     try:
-        # params check
-        if not all_privileges and not privileges_list:
-            return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Please Provide privilege list for all_privileges = False"
-            )
-        
-        # generating query
-        privileges = 'ALL PRIVILEGES' if all_privileges else ','.join(privileges_list) 
+        privileges = 'ALL PRIVILEGES' if all_privileges else ','.join(privileges_list)
         query = f"GRANT {privileges} ON {object_name} TO '{user}'@'{host}';"
-        
-        # execution
-        result =  utils.mysql_executor(conn=root_conn,query=query)
-        if result is not  None:
-           return Result(
-                success=False,
-                error_code=100,
-                error_msg=f"Wrong Query Insert/Update Detected During User Creation"
-            )
-        
-        # if result is none successful Execution
-        return Result(
-            success=True,
-            data=f"Granted {privileges} to {user}"
-        )
+        utils.mysql_executor(conn=root_conn, query=query)
     except Exception as e:
-         return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Unknown Error : {str(e).strip()}"
-            )
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
-    
+
 def delete_mysql_user(
-        root_conn,
-        user:str,
-        host:str='localhost'
-    )->Result:
+    root_conn,
+    user: str,
+    host: str = 'localhost'
+) -> None:
     '''
-    Docstring for delete_mysql_user
+    Delete MySQL user
     
-    :param root_conn: the connection made using root account 
-    :param user: username for mysql user to delete
-    :type user: str
-    :param host: hostname default ['localhost']
+    Args:
+        root_conn: MySQL connection with root privileges
+        user: Username to delete
+        host: Host permission (default: localhost)
+    
+    Raises:
+        ExecutionError: If user deletion fails
     '''
     try:
-
         query = f"DROP USER IF EXISTS '{user}'@'{host}';"
-        params = tuple()
-        
-        # execution
-        result =  utils.mysql_executor(conn=root_conn,query=query,params=params)
-        if result is not  None:
-           return Result(
-                success=False,
-                error_code=100,
-                error_msg=f"Wrong Query Insert/Update Detected During User Deletion"
-            )
-        # if result is none successful Execution
-        return Result(
-            success=True,
-            data=f"{user} Deleted Successfully"
-        )
+        utils.mysql_executor(conn=root_conn, query=query)
     except Exception as e:
-         return Result(
-                success=False,
-                error_code=200,
-                error_msg=f"Unknown Error : {str(e).strip()}"
-            )
-#==============================
-# Fresh Serve Setup 
-#==============================
-def configure_fresh_mysql_server(sudo_password):
-    '''changes the auth plugin of root to password bases if user wants sets the password else leave default blank password'''
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+# ============================================================================
+# PASSWORD OPERATIONS
+# ============================================================================
+
+def verify_mysql_password(
+    user: str,
+    password: str,
+    host: str = "localhost",
+) -> bool:
+    '''
+    Verify MySQL user credentials
     
+    Args:
+        user: MySQL username
+        password: Password to verify
+        host: MySQL host (default: localhost)
+    
+    Returns:
+        True if credentials valid, False otherwise
+    
+    Raises:
+        AuthError: If unexpected error during authentication check
+    '''
+    try:
+        connect(user=user, password=password, host=host)
+        return True
+    except (InterfaceError, ProgrammingError):
+        return False
+    except Exception as e:
+        raise errors.AuthError(f"Could not authenticate : {str(e).strip()}")
+
+
+def _change_mysql_root_password(
+    root_conn,
+    new_password: str,
+    host: str = 'localhost'
+) -> None:
+    '''
+    Change MySQL root user password
+    
+    Args:
+        root_conn: MySQL connection with root privileges
+        new_password: New password to set
+        host: MySQL host (default: localhost)
+    
+    Raises:
+        ExecutionError: If password change fails
+    '''
+    try:
+        query = f"ALTER USER 'root'@'{host}' IDENTIFIED WITH mysql_native_password BY %s;"
+        params = (new_password,)
+        utils.mysql_executor(root_conn, query, params)
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+# ============================================================================
+# PRIVILEGE MANAGEMENT (Administrative)
+# ============================================================================
+
+def _get_root_plugin(root_conn) -> str:
+    '''
+    Get authentication method of root user
+    
+    Args:
+        root_conn: MySQL connection with root privileges
+    
+    Returns:
+        Authentication plugin name (e.g., 'mysql_native_password')
+    
+    Raises:
+        ExecutionError: If query execution fails
+    '''
+    try:
+        query = "SELECT plugin FROM mysql.user WHERE user = %s;"
+        params = ('root',)
+        result = utils.mysql_executor(root_conn, query, params)
+        return result[0][0]  # result = [('auth_plugin',)] -> auth_plugin
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
+
+
+def flush_privileges(root_conn) -> None:
+    '''
+    Reload MySQL privileges (apply changes immediately)
+    
+    Args:
+        root_conn: MySQL connection with root privileges
+    
+    Raises:
+        ExecutionError: If execution fails
+    '''
+    try:
+        query = "FLUSH PRIVILEGES;"
+        utils.mysql_executor(conn=root_conn, query=query)
+    except Exception as e:
+        raise errors.ExecutionError(f"could not execute : {str(e).strip()}")

@@ -1,6 +1,6 @@
 from .executor import (
     mysql_executor, 
-    python_executor, 
+    # python_executor, 
     system_executor
 )
 from .file import (
@@ -40,7 +40,7 @@ __all__ = [
     'is_dir_exists',
     'is_file_exists',
     'mysql_executor',
-    'python_executor',
+    # 'python_executor',
     'read_binary_file',
     'read_json_file',
     'read_txt_file',

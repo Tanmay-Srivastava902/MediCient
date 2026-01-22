@@ -11,14 +11,14 @@ from .apt_service import (
     ensure_package_installed
 )
 
-from .systemd_service import (
+from .systemd_manager import (
     get_service_status,
     start_service,
     stop_service,
     restart_service
 )
 
-from .pip_services import (
+from .pip_service import (
     is_pip_exists,
     install_pip,
     export_python_packages,
