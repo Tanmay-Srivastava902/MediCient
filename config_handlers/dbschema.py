@@ -108,68 +108,23 @@ ALTER TABLE doctor AUTO_INCREMENT = 100000;
 ALTER TABLE patient AUTO_INCREMENT = 100000;
 ALTER TABLE appointment AUTO_INCREMENT = 10000000;
 '''
-
-import os 
-import utils 
-from results import Result
-
-
-def create_database_schema(filepath: str) -> Result:
-    """
-    Creates the Medicient database schema SQL file.
-    
-    This generates a schema.sql file that can be used to:
-    - Set up a fresh database installation
-    - Recover from corrupted schema files
-    - Recreate database structure after errors
-    
-    Args:
-        filepath: Path where schema.sql should be created
-    
-    Returns:
-        Result: Success with file path, or failure with error code
-    
-    Error Codes:
-        401: Parent directory doesn't exist
-        410: Failed to write schema file
-    
-    Example:
-        result = create_database_schema('configs/schema.sql')
-        if result.ok:
-            print(f"Schema created at: {result.data}")
-    """
+from utils import filesystem
+import errors
+import os
+def create_db_schema(dirpath:str,filename:str)->None:
+    '''Creates the marker file regardless existence of file'''
     try:
-        # Check parent directory exists
-        parent_folder = os.path.dirname(filepath)
-        if not utils.is_dir_exists(parent_folder) and parent_folder:
-            return Result(
-                success=False,
-                error_code=401,
-                error_msg=f"Directory does not exist: {parent_folder}"
-            )
-        
-        # Write schema file
-        result = utils.write_txt_file(
+        # checking parent folder
+        if not filesystem.is_dir_exists(dirpath):
+           raise errors.FolderNotFoundError(f'Parent folder not found {dirpath}')
+        # creating db schema
+        filepath = os.path.join(dirpath,filename)
+        filesystem.write_raw_binary_file(
             filepath=filepath,
             data=DEFAULT_DATABASE_SCHEMA,
-            overwrite=True  # Always overwrite (regenerate schema)
+            overwrite=True
         )
-        
-        if not result.ok:
-            return Result(
-                success=False,
-                error_code=410,
-                error_msg=f"Failed to write schema: {result.error_msg}"
-            )
-        
-        return Result(
-            success=True,
-            data=f"Medicient schema created at {filepath}"
-        )
-    
+        return None
     except Exception as e:
-        return Result(
-            success=False,
-            error_code=410,
-            error_msg=f"Unexpected error: {str(e)}"
-        )
+        raise errors.GeneralFileError(f'Could not create install marker {str(e).strip()}')
+   

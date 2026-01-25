@@ -1,6 +1,10 @@
 '''GENERAL PROMPTS OPERATIONS'''
 
-def get_password_input(msg="Enter Password : ",security_checks:bool=False):
+def get_password_input(msg="Enter Password : ",security_checks:bool=False) -> str | None:
+    '''
+    :returns password: str if requirements satisfied 
+    :returns None: if requirements not satisfied
+    '''
     import getpass
     if not security_checks :
         password = getpass.getpass(msg).strip() 
@@ -28,7 +32,7 @@ def get_password_input(msg="Enter Password : ",security_checks:bool=False):
             print("❗Password And Confirm Password Not Matched")
             return None
     
-def confirm(msg="Do You Want To Continue (y/n) : "):
+def confirm(msg="Do You Want To Continue (y/n) : ")->bool|None:
     '''returns true if yes False for no else None for Invalid Response'''
     response = input(msg).strip().lower()
     if response in ['y','n']:
@@ -36,6 +40,24 @@ def confirm(msg="Do You Want To Continue (y/n) : "):
     else:
         print(f"Invalid Response {response}")
         return None
+def validate_input(ipt:str,min_length:int,max_length:int,blocked_chars:list[str]=[],required_chars:list[str]=[]):
+    # length check
+    if len(ipt) < min_length or len(ipt) > max_length:
+        return False
+    # required char check [as this requires less memory only few chars to iterate over]
+    for required_char in required_chars:
+        if required_char not in ipt:
+            return False
+    # blocked char check [requsires more memory whole ipt is to iterate over]
+    for char in ipt:
+        if char in blocked_chars:
+            return False
+    # all checks passed
+    return True 
+            
+    
+    
+
 
 if __name__ == "__main__":
     

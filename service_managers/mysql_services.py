@@ -1,6 +1,7 @@
 '''CONTAINS ALL MYSQL SERVER RELATED FUNCTIONS'''
 
 from mysql.connector import connect, ProgrammingError, InterfaceError
+from mysql.connector.abstracts import MySQLCursorAbstract
 import utils
 import errors
 
@@ -8,7 +9,7 @@ import errors
 # SERVER MANAGEMENT
 # ============================================================================
 
-def _install_mysql_server(sudo_password: str) -> None:
+def install_mysql_server(sudo_password: str) -> None:
     '''Install MySQL Server'''
     try:
         cmd = ['apt', 'install', '-y', 'mysql-server']
@@ -23,7 +24,7 @@ def _install_mysql_server(sudo_password: str) -> None:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
-def _mysql_server_status() -> int:
+def mysql_server_status() -> int:
     '''
     Check MySQL Server Status
     
@@ -38,7 +39,7 @@ def _mysql_server_status() -> int:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
-def _start_mysql_server(sudo_password: str) -> None:
+def start_mysql_server(sudo_password: str) -> None:
     '''Start MySQL Server'''
     try:
         cmd = ['systemctl', 'start', 'mysql']
@@ -53,7 +54,7 @@ def _start_mysql_server(sudo_password: str) -> None:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
-def _stop_mysql_server(sudo_password: str) -> None:
+def stop_mysql_server(sudo_password: str) -> None:
     '''Stop MySQL Server'''
     try:
         cmd = ['systemctl', 'stop', 'mysql']
@@ -68,7 +69,7 @@ def _stop_mysql_server(sudo_password: str) -> None:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
-def _restart_mysql_server(sudo_password: str) -> None:
+def restart_mysql_server(sudo_password: str) -> None:
     '''Restart MySQL Server'''
     try:
         cmd = ['systemctl', 'restart', 'mysql']
@@ -94,7 +95,7 @@ def create_conn(
     db: str = ''
 ):
     '''
-    Create MySQL connection
+    Create MysqlConnectionAbstract
     
     Args:
         user: MySQL username (default: root)
@@ -103,7 +104,7 @@ def create_conn(
         db: Database name (default: empty - no specific db)
     
     Returns:
-        MySQL connection object
+        MysqlConnectionAbstract object
     
     Raises:
         AuthError: If authentication fails
@@ -122,10 +123,10 @@ def create_conn(
 
 def close_conn(conn, commit: bool = True) -> None:
     '''
-    Close MySQL connection
+    Close MysqlConnectionObject
     
     Args:
-        conn: MySQL connection object
+        conn: MysqlConnection object
         commit: Whether to commit before closing (default: True)
     '''
     if commit:
@@ -138,7 +139,7 @@ def close_conn(conn, commit: bool = True) -> None:
 # ============================================================================
 
 def create_mysql_user(
-    root_conn,
+    root_cursor:MySQLCursorAbstract,
     user: str,
     host: str = 'localhost',
     password: str = ''
@@ -147,7 +148,7 @@ def create_mysql_user(
     Create MySQL user
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
         user: Username to create
         host: Host permission (default: localhost)
         password: User password (default: empty - no password)
@@ -163,13 +164,13 @@ def create_mysql_user(
             query = f"CREATE USER '{user}'@'{host}';"
             params = tuple()
         
-        utils.mysql_executor(conn=root_conn, query=query, params=params)
+        utils.mysql_executor(cursor=root_cursor, query=query, params=params)
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
 def grant_privileges(
-    root_conn,
+    root_cursor:MySQLCursorAbstract,
     user: str,
     object_name: str,
     host: str = 'localhost',
@@ -180,7 +181,7 @@ def grant_privileges(
     Grant privileges to MySQL user
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
         user: Username to grant privileges to
         object_name: Target (e.g., 'database.*' or 'database.table')
         host: Host permission (default: localhost)
@@ -197,13 +198,13 @@ def grant_privileges(
     try:
         privileges = 'ALL PRIVILEGES' if all_privileges else ','.join(privileges_list)
         query = f"GRANT {privileges} ON {object_name} TO '{user}'@'{host}';"
-        utils.mysql_executor(conn=root_conn, query=query)
+        utils.mysql_executor(cursor=root_cursor, query=query)
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
 def delete_mysql_user(
-    root_conn,
+    root_cursor,
     user: str,
     host: str = 'localhost'
 ) -> None:
@@ -211,7 +212,7 @@ def delete_mysql_user(
     Delete MySQL user
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
         user: Username to delete
         host: Host permission (default: localhost)
     
@@ -220,7 +221,7 @@ def delete_mysql_user(
     '''
     try:
         query = f"DROP USER IF EXISTS '{user}'@'{host}';"
-        utils.mysql_executor(conn=root_conn, query=query)
+        utils.mysql_executor(cursor=root_cursor, query=query)
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
@@ -258,7 +259,7 @@ def verify_mysql_password(
 
 
 def _change_mysql_root_password(
-    root_conn,
+    root_cursor:MySQLCursorAbstract,
     new_password: str,
     host: str = 'localhost'
 ) -> None:
@@ -266,7 +267,7 @@ def _change_mysql_root_password(
     Change MySQL root user password
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
         new_password: New password to set
         host: MySQL host (default: localhost)
     
@@ -276,7 +277,7 @@ def _change_mysql_root_password(
     try:
         query = f"ALTER USER 'root'@'{host}' IDENTIFIED WITH mysql_native_password BY %s;"
         params = (new_password,)
-        utils.mysql_executor(root_conn, query, params)
+        utils.mysql_executor(root_cursor, query, params)
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
@@ -285,12 +286,12 @@ def _change_mysql_root_password(
 # PRIVILEGE MANAGEMENT (Administrative)
 # ============================================================================
 
-def _get_root_plugin(root_conn) -> str:
+def _get_root_plugin(root_cursor:MySQLCursorAbstract) -> str:
     '''
     Get authentication method of root user
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
     
     Returns:
         Authentication plugin name (e.g., 'mysql_native_password')
@@ -301,24 +302,24 @@ def _get_root_plugin(root_conn) -> str:
     try:
         query = "SELECT plugin FROM mysql.user WHERE user = %s;"
         params = ('root',)
-        result = utils.mysql_executor(root_conn, query, params)
+        result = utils.mysql_executor(root_cursor, query, params)
         return result[0][0]  # result = [('auth_plugin',)] -> auth_plugin
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")
 
 
-def flush_privileges(root_conn) -> None:
+def flush_privileges(root_cursor:MySQLCursorAbstract) -> None:
     '''
     Reload MySQL privileges (apply changes immediately)
     
     Args:
-        root_conn: MySQL connection with root privileges
+        root_cursor: MysqlCursorAbstract with root privileges
     
     Raises:
         ExecutionError: If execution fails
     '''
     try:
         query = "FLUSH PRIVILEGES;"
-        utils.mysql_executor(conn=root_conn, query=query)
+        utils.mysql_executor(cursor=root_cursor, query=query)
     except Exception as e:
         raise errors.ExecutionError(f"could not execute : {str(e).strip()}")

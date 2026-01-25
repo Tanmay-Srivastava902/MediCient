@@ -1,8 +1,7 @@
 '''Manages encryption and hashing for security'''
 
 from cryptography.fernet import Fernet, InvalidToken
-
-
+import base64
 # ============================================================================
 # ENCRYPTION KEY MANAGEMENT
 # ============================================================================
@@ -18,6 +17,18 @@ def generate_fernet_key() -> bytes:
           access to all encrypted data.
     """
     return Fernet.generate_key()
+
+def convert_into_fernet_key(str_key:str)->bytes:
+    """
+    Converts a provided string into a Fernet-safe key (base64-encoded 32 bytes).
+    Pads or trims the input as needed.
+    
+    :params str_key (str): The original key string
+    :returns bytes: Fernet-safe key (base64-encoded 32 bytes)
+    """
+    key_bytes = str_key.encode('utf-8')
+    key_bytes = key_bytes.ljust(32, b'0')[:32]  # pad with zeros or trim
+    return base64.urlsafe_b64encode(key_bytes)
 
 
 def create_fernet_instance(key: bytes) -> Fernet:
@@ -79,7 +90,7 @@ def decrypt(key: bytes, data: bytes) -> str | None:
         fernet = create_fernet_instance(key)
         return fernet.decrypt(data).decode()
     except (InvalidToken, ValueError):
-        print("❌ Invalid key or corrupted data")
+        # invalid key / corrupted data 
         return None
 
 
@@ -121,7 +132,6 @@ def encode_base64_urlsafe(data: str) -> str:
     Note: Only needed if you're doing base64 encoding for purposes OTHER
           than Fernet (which handles base64 internally).
     """
-    import base64
     return base64.urlsafe_b64encode(data.encode()).decode()
 
 
@@ -132,7 +142,6 @@ def decode_base64_urlsafe(data: str) -> str:
     Note: Only needed if you're doing base64 decoding for purposes OTHER
           than Fernet (which handles base64 internally).
     """
-    import base64
     return base64.urlsafe_b64decode(data).decode()
 
 

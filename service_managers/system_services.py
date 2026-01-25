@@ -1,10 +1,59 @@
-"""Manages system package installation via APT (Debian/Ubuntu)"""
-
+# '''MANAGES SYSTEM SERVICES'''
 import utils
 import errors
-# ============================================================================
-# PACKAGE DETECTION
-# ============================================================================
+#==============================================================================
+# SYSTEMD (SYSTEMCTL) SERVICE
+#==============================================================================
+def service_status(service:str) -> int:
+    '''
+    Check  service Status
+    returns returncode: int if found status [1,2,3,4...]
+    '''
+
+    cmd = ['systemctl', 'status', service]
+    result = utils.system_executor(command=cmd, sudo_access=False)
+    return result.returncode
+
+def start__service(service:str,sudo_password: str) -> None:
+    '''Start service'''
+    
+    cmd = ['systemctl', 'start', service]
+    result = utils.system_executor(
+        command=cmd,
+        sudo_access=True,
+        sudo_password=sudo_password
+    )
+    if result.returncode != 0:
+        raise errors.ServiceError(f"could not start : {result.stderr}")
+
+def stop__service(service:str,sudo_password: str) -> None:
+    '''Stop  service'''
+    cmd = ['systemctl', 'stop', service]
+    result = utils.system_executor(
+        command=cmd,
+        sudo_access=True,
+        sudo_password=sudo_password
+    )
+    if result.returncode != 0:
+        raise errors.ServiceError(f"could not stop : {result.stderr}")
+
+def restart__service(service:str,sudo_password: str) -> None:
+    '''Restart service'''
+    
+    cmd = ['systemctl', 'restart',service]
+    result = utils.system_executor(
+        command=cmd,
+        sudo_access=True,
+        sudo_password=sudo_password
+    )
+    if result.returncode != 0:
+        raise errors.ServiceError(f"could not restart : {result.stderr}")
+#===============================================================================
+# APT SERVICES
+#===============================================================================
+#=================================
+# package detection
+# =================================
 def _package_version(package: str) -> str:
     """
     Gets version of an installed package
@@ -12,8 +61,6 @@ def _package_version(package: str) -> str:
     :params package: Package command name (e.g., 'python3', 'mysql')
     :returns package_version_info: str if found 
     :raises AptError: if could not check version 
-    
-    
     """
     cmd = [package, '--version']
     result = utils.system_executor(cmd)
@@ -23,8 +70,6 @@ def _package_version(package: str) -> str:
         raise errors.AptError(f"could not check version: {result.stderr}")
     return result.stdout # package version
     
-
-
 def is_package_installed(package: str) -> bool:
     """
     Checks if a package is installed.
@@ -36,9 +81,9 @@ def is_package_installed(package: str) -> bool:
     result = utils.system_executor(cmd)
     return result.returncode == 0  # returns true or false 
 
-# ============================================================================
+# =================================
 # APT PACKAGE MANAGEMENT
-# ============================================================================
+# =================================
 
 def update_system_packages(sudo_password: str) -> None:
     """
@@ -118,9 +163,9 @@ def uninstall_system_package(sudo_password: str, package:str) -> None:
         raise errors.AptError(f"could not uninstall packages: {result.stderr}")
     return None
 
-# ============================================================================
+# =================================
 # CONVENIENCE WRAPPER
-# ============================================================================
+# =================================
 
 def ensure_package_installed(sudo_password: str, package: str) -> None:
     """
@@ -134,3 +179,6 @@ def ensure_package_installed(sudo_password: str, package: str) -> None:
     # Install package
     install_system_package(sudo_password, package)
     return None
+
+
+

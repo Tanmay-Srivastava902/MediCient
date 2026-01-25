@@ -94,12 +94,12 @@ def python_executor(command, run_module=False, interactive_mode=False, need_outp
         text=need_output
     )
 
-def mysql_executor(conn, query, params=())->list[tuple]:
+def mysql_executor(cursor, query, params=())->list[tuple]:
     """
     Execute MySQL queries
     
     Args:
-        conn: MySQL connection object
+        cursor: MySQLCursorAbstract
         query: SQL query string
         params: Tuple of parameters for parameterized queries
     
@@ -114,100 +114,12 @@ def mysql_executor(conn, query, params=())->list[tuple]:
         # INSERT
         execute_query(conn, "INSERT INTO users (name) VALUES (%s)", ('John',))
     """
-    cursor = conn.cursor()
     cursor.execute(query, params)
-    
     # Check if it's a query that returns data
     first_word = query.strip().split()[0].lower() 
     if first_word in ['select', 'show', 'describe', 'desc', 'explain']:
         result = cursor.fetchall()
-        cursor.close()
         return result
     else:
         # For INSERT/UPDATE/DELETE
-        conn.commit()
-        cursor.close()
         return [tuple()] # return blank list[tuple]  
-
-# def mysql_executor(conn, query, params=()):
-#     """
-#     Execute MySQL queries
-    
-#     Args:
-#         conn: MySQL connection object
-#         query: SQL query string
-#         params: Tuple of parameters for parameterized queries
-    
-#     Returns:
-#         list[tuple]: For SELECT queries
-#         None: For other queries (INSERT/UPDATE/DELETE)
-    
-#     Examples:
-#         # SELECT
-#         rows = mysql_executor(conn, "SELECT * FROM users WHERE id = %s", (5,))
-        
-#         # INSERT
-#         mysql_executor(conn, "INSERT INTO users (name) VALUES (%s)", ('John',))
-#     """
-#     cursor = conn.cursor()
-#     cursor.execute(query, params)
-    
-#     # Check if it's a query that returns data
-#     first_word = query.strip().split()[0].lower() 
-#     if first_word in ['select', 'show', 'describe', 'desc', 'explain']:
-#         result = cursor.fetchall()
-#         cursor.close()
-#         return result
-#     else:
-#         # For INSERT/UPDATE/DELETE
-#         conn.commit()
-#         cursor.close()
-#         return None
-
-
-# ============================================
-# TESTING
-# ============================================
-
-if __name__ == "__main__":
-    print("="*50)
-    print("EXECUTOR LAYER TEST SUITE")
-    print("="*50)
-    
-    # Test 1: System executor
-    print("\n[TEST 1] System Executor - Simple command")
-    result = system_executor(['echo', 'hello'])
-    if result:
-        print(f"✓ Return code: {result.returncode}")
-        print(f"  Output: {result.stdout.strip()}")
-    
-    # Test 2: Python executor - Script mode
-    print("\n[TEST 2] Python Executor - Script mode")
-    result = python_executor(['-c', 'print(30 > 20)'])
-    if result:
-        print(f"✓ Return code: {result.returncode}")
-        print(f"  Output: {result.stdout.strip()}")
-    
-    # Test 3: Python executor - Module mode
-    print("\n[TEST 3] Python Executor - Module mode")
-    result = python_executor(['pip', 'list'], run_module=True)
-    if result:
-        print(f"✓ Return code: {result.returncode}")
-        print(f"  Output: {result.stdout[:100]}...")  # First 100 chars
-    
-    # Test 4: Both flags (should fail)
-    print("\n[TEST 4] Python Executor - Both flags (should fail)")
-    result = python_executor(['test'], run_module=True, interactive_mode=True)
-    if not result:
-        print("✓ Correctly rejected both flags")
-    
-    # Test 5: System executor without sudo password (should fail)
-    print("\n[TEST 5] System Executor - Missing sudo password")
-    result = system_executor(['systemctl', 'status', 'mysql'], sudo_access=True)
-    if not result:
-        print("✓ Correctly rejected missing password")
-    
-    print("\n" + "="*50)
-    print("TESTS COMPLETE")
-    print("="*50)
-    pass

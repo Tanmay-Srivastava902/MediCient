@@ -28,7 +28,7 @@ from .pip_service import (
     ensure_python_package
 )
 
-from .mysql_service import (
+from .mysql_services import (
     _install_mysql_server,
     _check_mysql_server,
     _start_mysql_server,

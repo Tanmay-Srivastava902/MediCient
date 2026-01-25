@@ -1,48 +1,76 @@
 '''CONTAINS CUSTOM ERROR CLASSES AND ERROR CONSTANTS '''
 class InstallError(Exception):
-    '''class for error indicating an installation of program/service is failed'''
+    '''installation of program/service is failed'''
     pass
 class AuthError(Exception):
-    '''Class for error indicating wrong credential leading to failed authentication needs retied'''
+    '''  wrong credential leading to failed authentication needs retied'''
     pass
 class InvalidArgumentError(Exception):
-    '''Class for error indicating wrong parameters given'''
+    '''  wrong parameters given'''
     pass
 class MysqlConnectionError(Exception):
-    '''Class for error indicating could not connect due to general connector problem'''
+    '''  could not connect due to general connector problem'''
 class MaxAttemptError(Exception):
-    '''Class for error indicating no attempts left'''
+    '''  no attempts left'''
     pass
 class NeedsInstallError(Exception):
-    '''Class for error indicating something program/service is missing needed to be installed'''
+    '''  something program/service is missing needed to be installed'''
     pass
 class AlreadyExistsError(Exception):
-    '''Class for error indicating an entity file/folder/db/user/record is already existing'''
+    '''entity file/folder/db/user/record is already existing'''
     pass
-class DoesNotExistsError(Exception):
-    '''Class for error indicating an entity file/folder/db/user/record is missing/corrupted cannot  be found'''
+
+class FileNotFoundError(Exception):
+    '''file is missing/corrupted'''
     pass
+class DBConnectionError(Exception):
+    pass
+class FolderNotFoundError(Exception):
+    '''entity folder is missing/corrupted'''
+    pass
+class UserNotFoundError(Exception):
+    '''user not exists'''
+    pass
+class InsertError(Exception):
+    pass
+class UpdateError(Exception):
+    pass
+class RecordNotFoundError(Exception):
+    '''record is missing/corrupted'''
+    pass
+class RecordError(Exception):
+    pass
+class DatabaseNotFoundError(Exception):
+    pass
+class DBError(Exception):
+    pass
+
 class ExecutionError(Exception):
-    '''Class For all Execution errors indicating the problem in subprocess or executor '''
+    '''the problem in subprocess or executor '''
     pass
-# class ServiceStartError(Exception):
-#     '''Class For error indicating could not start a service '''
-# class ServiceStopError(Exception):
-#     '''Class For error indicating could not stop a service '''
-# class ServiceRestartError(Exception):
-#     '''Class For error indicating could not restart a service '''
+class TableError(Exception):
+    '''database tables are not proper'''
 class ServiceError(Exception):
-    '''Class For all error indicating systemd failure '''
+    '''Class For all error  systemd failure '''
     pass
 class PipError(Exception):
-    '''Class For all error indicating pip failure '''
+    '''Class For all error  pip failure '''
     pass
 class PackageError(Exception):
-    '''Class For all error indicating Package failure '''
+    '''Class For all error  Package failure '''
     pass
 class AptError(Exception):
-    '''Class For all error indicating Package failure '''
+    '''Class For all error  Package failure '''
     pass
 class VenvError(Exception):
-    '''Class For all error indicating Venv failure '''
+    '''Class For all error  Venv failure '''
+    pass
+class EncryptionError(Exception):
+    '''for '''
+    pass
+class SecurityError(Exception):
+    pass
+class ConfigError(Exception):
+    pass
+class GeneralFileError(Exception):
     pass
