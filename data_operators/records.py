@@ -131,8 +131,7 @@ def select_record(
                 for column,value in where_dict.items():
 
                     auto_detect_in = isinstance(value,(tuple,list)) # here instance value (type tuple ) is an instance of class tuple hence True else false
-                    auto_detect_like = True if '%' in value or '_' in value else False  # true if value ('_%s_','%_') is in value -> true 
-
+                    auto_detect_like = isinstance(value, str) and ('%' in value or '_' in value) # true if value ('_%s_','%_') is in value -> true 
                     if auto_detect_in : 
                         in_clause = f"{('%s',)*len(value)}".replace('\'','') 
                         # f"('%s','%s')".replace('\'','') -> f"(%s,%s)"
@@ -165,7 +164,7 @@ def select_record(
         # execution and return
         return executors.mysql_executor(cursor,query,params)
     except DatabaseError as e :
-        raise errors.RecordError(f'could not Delete record: {str(e).strip()}')
+        raise errors.RecordError(f'could not Select record: {str(e).strip()}')
     except (InterfaceError,ProgrammingError) as e :
         raise errors.DBConnectionError(f'could not connect : {str(e).strip()}')
     except Error as e : 

@@ -27,7 +27,6 @@ from .prompt import (
 from .security import (
     generate_fernet_key,
     convert_into_fernet_key,
-    create_fernet_instance,
     encrypt,
     decrypt,
     hash_data,
@@ -61,7 +60,6 @@ __all__ = [
     # security
     'generate_fernet_key',
     'convert_into_fernet_key',
-    'create_fernet_instance',
     'encrypt',
     'decrypt',
     'hash_data',

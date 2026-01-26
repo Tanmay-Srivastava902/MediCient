@@ -48,13 +48,15 @@ def validate_input(ipt:str,min_length:int,max_length:int,blocked_chars:list[str]
     for required_char in required_chars:
         if required_char not in ipt:
             return False
-    # blocked char check [requsires more memory whole ipt is to iterate over]
+    # blocked char check [requires more memory whole ipt is to iterate over]
     for char in ipt:
         if char in blocked_chars:
             return False
     # all checks passed
     return True 
-            
+
+def validate_email(email:str)->bool:
+    return validate_input(email,8,30,required_chars=['.','@'],blocked_chars=[' '])
     
     
 

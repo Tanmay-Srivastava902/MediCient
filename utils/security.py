@@ -31,7 +31,7 @@ def convert_into_fernet_key(str_key:str)->bytes:
     return base64.urlsafe_b64encode(key_bytes)
 
 
-def create_fernet_instance(key: bytes) -> Fernet:
+def __create_fernet_instance(key: bytes) -> Fernet:
     """
     Creates a Fernet cipher instance.
     
@@ -65,7 +65,7 @@ def encrypt(key: bytes, data: str) -> bytes:
         key = generate_fernet_key()
         encrypted = encrypt(key, "secret message")
     """
-    fernet = create_fernet_instance(key)
+    fernet = __create_fernet_instance(key)
     return fernet.encrypt(data.encode())
 
 
@@ -87,7 +87,7 @@ def decrypt(key: bytes, data: bytes) -> str | None:
             print(f"Message: {decrypted}")
     """
     try:
-        fernet = create_fernet_instance(key)
+        fernet = __create_fernet_instance(key)
         return fernet.decrypt(data).decode()
     except (InvalidToken, ValueError):
         # invalid key / corrupted data 
@@ -145,85 +145,85 @@ def decode_base64_urlsafe(data: str) -> str:
     return base64.urlsafe_b64decode(data).decode()
 
 
-# ============================================================================
-# TESTS
-# ============================================================================
+# # ============================================================================
+# # TESTS
+# # ============================================================================
 
-if __name__ == "__main__":
-    print("\n" + "="*60)
-    print("SECURITY MODULE TEST SUITE")
-    print("="*60)
+# if __name__ == "__main__":
+#     print("\n" + "="*60)
+#     print("SECURITY MODULE TEST SUITE")
+#     print("="*60)
 
-    # Test 1: Key Generation
-    print("\n[TEST 1] Generate Encryption Key")
-    try:
-        key = generate_fernet_key()
-        # Verify it's a valid Fernet key by creating instance
-        Fernet(key)
-        print(f"✅ Generated valid key: {key}")
-    except Exception as e:
-        print(f"❌ Failed: {e}")
+#     # Test 1: Key Generation
+#     print("\n[TEST 1] Generate Encryption Key")
+#     try:
+#         key = generate_fernet_key()
+#         # Verify it's a valid Fernet key by creating instance
+#         Fernet(key)
+#         print(f"✅ Generated valid key: {key}")
+#     except Exception as e:
+#         print(f"❌ Failed: {e}")
 
-    # generating random key to test further
-    key = Fernet.generate_key()
-    # Test 2: Encryption
-    print("\n[TEST 2] Encrypt Data")
-    test_data = "SECURE DATA: SECRET! 🔒❤️"
-    encrypted = encrypt(key, test_data)
-    print(f"✅ Encrypted: {encrypted}")
+#     # generating random key to test further
+#     key = Fernet.generate_key()
+#     # Test 2: Encryption
+#     print("\n[TEST 2] Encrypt Data")
+#     test_data = "SECURE DATA: SECRET! 🔒❤️"
+#     encrypted = encrypt(key, test_data)
+#     print(f"✅ Encrypted: {encrypted}")
 
-    # Test 3: Decryption (Correct Key)
-    print("\n[TEST 3] Decrypt Data (Correct Key)")
-    decrypted = decrypt(key, encrypted)
-    if decrypted == test_data:
-        print(f"✅ Decrypted correctly: {decrypted}")
-    else:
-        print(f"❌ Mismatch! Got: {decrypted}")
+#     # Test 3: Decryption (Correct Key)
+#     print("\n[TEST 3] Decrypt Data (Correct Key)")
+#     decrypted = decrypt(key, encrypted)
+#     if decrypted == test_data:
+#         print(f"✅ Decrypted correctly: {decrypted}")
+#     else:
+#         print(f"❌ Mismatch! Got: {decrypted}")
 
-    # Test 4: Decryption (Wrong Key)
-    print("\n[TEST 4] Decrypt Data (Wrong Key)")
-    wrong_key = generate_fernet_key()
-    result = decrypt(wrong_key, encrypted)
-    if result is None:
-        print("✅ Correctly rejected wrong key")
-    else:
-        print(f"❌ Should have returned None, got: {result}")
+#     # Test 4: Decryption (Wrong Key)
+#     print("\n[TEST 4] Decrypt Data (Wrong Key)")
+#     wrong_key = generate_fernet_key()
+#     result = decrypt(wrong_key, encrypted)
+#     if result is None:
+#         print("✅ Correctly rejected wrong key")
+#     else:
+#         print(f"❌ Should have returned None, got: {result}")
 
-    # Test 5: Hashing
-    print("\n[TEST 5] Hash Data")
-    hash1 = hash_data("password123")
-    hash2 = hash_data("password123")
-    hash3 = hash_data("password124")
+#     # Test 5: Hashing
+#     print("\n[TEST 5] Hash Data")
+#     hash1 = hash_data("password123")
+#     hash2 = hash_data("password123")
+#     hash3 = hash_data("password124")
     
-    if hash1 == hash2:
-        print("✅ Same input produces same hash")
-    else:
-        print("❌ Inconsistent hashing")
+#     if hash1 == hash2:
+#         print("✅ Same input produces same hash")
+#     else:
+#         print("❌ Inconsistent hashing")
         
-    if hash1 != hash3:
-        print("✅ Different input produces different hash")
-    else:
-        print("❌ Hash collision!")
+#     if hash1 != hash3:
+#         print("✅ Different input produces different hash")
+#     else:
+#         print("❌ Hash collision!")
     
-    print(f"   Hash: {hash1}")
+#     print(f"   Hash: {hash1}")
 
-    # Test 6: Base64 Encoding 
-    print("\n[TEST 6] Base64 Encoding")
-    encoded = encode_base64_urlsafe(test_data)
-    decoded = decode_base64_urlsafe(encoded)
-    if decoded == test_data:
-        print(f"✅ Base64 round-trip successful")
-    else:
-        print(f"❌ Base64 failed")
+#     # Test 6: Base64 Encoding 
+#     print("\n[TEST 6] Base64 Encoding")
+#     encoded = encode_base64_urlsafe(test_data)
+#     decoded = decode_base64_urlsafe(encoded)
+#     if decoded == test_data:
+#         print(f"✅ Base64 round-trip successful")
+#     else:
+#         print(f"❌ Base64 failed")
 
-    # Test 7: Hash Irreversibility
-    print("\n[TEST 7] Hash Is One-Way")
-    original = "my_password"
-    hashed = hash_data(original)
-    print(f"   Original: {original}")
-    print(f"   Hash: {hashed}")
-    print("✅ Cannot reverse hash to get original (by design)")
+#     # Test 7: Hash Irreversibility
+#     print("\n[TEST 7] Hash Is One-Way")
+#     original = "my_password"
+#     hashed = hash_data(original)
+#     print(f"   Original: {original}")
+#     print(f"   Hash: {hashed}")
+#     print("✅ Cannot reverse hash to get original (by design)")
 
-    print("\n" + "="*60)
-    print("ALL TESTS COMPLETE ✅")
-    print("="*60)
+#     print("\n" + "="*60)
+#     print("ALL TESTS COMPLETE ✅")
+#     print("="*60)

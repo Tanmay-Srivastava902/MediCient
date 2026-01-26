@@ -15,7 +15,10 @@ from .credentials import (
     save_encryption_key,
     load_encryption_key,
     save_password,
-    load_password
+    load_password,
+    create_passphrase,
+    load_passphrase
+
 )
 # dbschema.py
 from .dbschema import create_db_schema
@@ -38,6 +41,8 @@ __all__ = [
     'load_encryption_key',
     'save_password',
     'load_password',
+    'create_passphrase',
+    'load_passphrase',
     # dbschema.py
     'create_db_schema',
     # settings.py
