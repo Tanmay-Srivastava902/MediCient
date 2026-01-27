@@ -40,77 +40,93 @@ def confirm(msg="Do You Want To Continue (y/n) : ")->bool|None:
     else:
         print(f"Invalid Response {response}")
         return None
-def validate_input(ipt:str,min_length:int,max_length:int,blocked_chars:list[str]=[],required_chars:list[str]=[]):
+def validate_input(
+        ipt:str,
+        min_length:int,
+        max_length:int,
+        blocked_chars:list[str]=[],
+        required_chars:list[str]=[]
+        )->bool:
     # length check
+    ipt.strip()
     if len(ipt) < min_length or len(ipt) > max_length:
+        print(f'❗Invalid Length {len(ipt)}')
         return False
     # required char check [as this requires less memory only few chars to iterate over]
     for required_char in required_chars:
         if required_char not in ipt:
+            print(f'❗Missing required character {required_char}')
             return False
     # blocked char check [requires more memory whole ipt is to iterate over]
     for char in ipt:
         if char in blocked_chars:
+            print(f'❌ character not allowed {char}')
             return False
+        
     # all checks passed
     return True 
 
+def validate_integer(integer:int,min_value:int,max_value:int)->bool:
+    return integer < max_value and integer > min_value
+
 def validate_email(email:str)->bool:
     return validate_input(email,8,30,required_chars=['.','@'],blocked_chars=[' '])
+
+
     
     
 
 
-if __name__ == "__main__":
-    
-    print("\n" + "="*50)
-    print("PROMPTS TEST SUIT")
-    print("="*50)
+# if __name__ == "__main__":
+    # print(validate_doctor_license('DOS12389'))
+    # print("\n" + "="*50)
+    # print("PROMPTS TEST SUIT")
+    # print("="*50)
 
 
-    # Test 1: get password input security checks = false
-    print("\n[TEST 1] PASSWORD INPUT - No security Checks")
-    result = get_password_input('Enter Password : ') 
-    if result:
-        print(f"✓ Check Passed Password: {result}")
+    # # Test 1: get password input security checks = false
+    # print("\n[TEST 1] PASSWORD INPUT - No security Checks")
+    # result = get_password_input('Enter Password : ') 
+    # if result:
+    #     print(f"✓ Check Passed Password: {result}")
     
-    # Test 2: get password input security checks = false
-    print("\n[TEST 2] PASSWORD INPUT - no confirm password match")
-    result = get_password_input('Enter Password : ',security_checks=True) 
-    if not result:
-        print(f"✓ Check Passed Password: {result}")
+    # # Test 2: get password input security checks = false
+    # print("\n[TEST 2] PASSWORD INPUT - no confirm password match")
+    # result = get_password_input('Enter Password : ',security_checks=True) 
+    # if not result:
+    #     print(f"✓ Check Passed Password: {result}")
     
-    # Test 3: get password input security checks = True 
-    # (ensuring  password always  meets security check)
-    print("\n[TEST 3] PASSWORD INPUT - with security checks (always passed)")
-    result = get_password_input('Enter Password ',security_checks=True) 
-    if result:
-        print(f"✓ Check Passed Password: {result}")
+    # # Test 3: get password input security checks = True 
+    # # (ensuring  password always  meets security check)
+    # print("\n[TEST 3] PASSWORD INPUT - with security checks (always passed)")
+    # result = get_password_input('Enter Password ',security_checks=True) 
+    # if result:
+    #     print(f"✓ Check Passed Password: {result}")
     
-    # Test 4: get password input security checks = True 
-    # (ensuring  password does not meet security checks)
-    print("\n[TEST 4] PASSWORD INPUT - with security checks (intentionally failed)")
-    result = get_password_input('Enter Password ',security_checks=True) 
-    if not result:
-        print(f"✓ Check Passed Password: {result}")
+    # # Test 4: get password input security checks = True 
+    # # (ensuring  password does not meet security checks)
+    # print("\n[TEST 4] PASSWORD INPUT - with security checks (intentionally failed)")
+    # result = get_password_input('Enter Password ',security_checks=True) 
+    # if not result:
+    #     print(f"✓ Check Passed Password: {result}")
     
     
-    # Test 4: confirm ( with invalid input)
-    print("\n[TEST 5] confirmation (with invalid input )")
-    result = confirm() 
-    if result ==  None:
-        print(f"✓ Check Passed Confirmation: {result}")
+    # # Test 4: confirm ( with invalid input)
+    # print("\n[TEST 5] confirmation (with invalid input )")
+    # result = confirm() 
+    # if result ==  None:
+    #     print(f"✓ Check Passed Confirmation: {result}")
     
-    # Test 5: confirm (with correct response)
-    print("\n[TEST 6] confirmation (with correct response)")
-    result = confirm() 
-    if result != None:
-        print(f"✓ Check Passed Confirmation: {result}")
+    # # Test 5: confirm (with correct response)
+    # print("\n[TEST 6] confirmation (with correct response)")
+    # result = confirm() 
+    # if result != None:
+    #     print(f"✓ Check Passed Confirmation: {result}")
 
 
-    print("\n" + "="*50)
-    print("TESTS COMPLETE")
-    print("="*50)
+    # print("\n" + "="*50)
+    # print("TESTS COMPLETE")
+    # print("="*50)
 
 
 

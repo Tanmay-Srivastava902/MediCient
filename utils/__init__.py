@@ -21,7 +21,11 @@ from .filesystem import (
 )
 from .prompt import (
     get_password_input ,
-    confirm
+    confirm,
+    validate_input,
+    validate_email,
+    validate_integer
+
 )
 
 from .security import (
@@ -57,6 +61,9 @@ __all__ = [
     # prompt
     'get_password_input',
     'confirm',
+    'validate_input',
+    'validate_email',
+    'validate_integer',
     # security
     'generate_fernet_key',
     'convert_into_fernet_key',
