@@ -134,23 +134,18 @@ def add_medical_history(cursor: MySQLCursorAbstract, user_id: int) -> int:
             if not is_disease_exists(cursor,disease_id):
                     print(f'❗disease is not exists in our database please retry ')
                     continue
-            appointment_id = int(input('Enter appointment id: '))
-            if not is_appointment_exists(cursor,disease_id):
-                    print(f'! appointment is not exists in our database please retry ')
-                    continue
             symptoms = input('Symptoms observed: ')
             treatment = input('Treatment given: ')
             medicines = input('Medicines prescribed: ')
             prevention = input('Prevention advice: ')
+    
             
             # Insert
             records.insert_record(
                 cursor=cursor,
                 table='medical_history',
-                column_order=('doctor_id', 'patient_id', 'disease_id', 'appointment_id', 
-                            'symptoms', 'treatment', 'medicines', 'prevention', 'status'),
-                values_list=[(doctor_id, patient_id, disease_id, appointment_id, 
-                            symptoms, treatment, medicines, prevention, 'active')]
+                column_order=('doctor_id', 'patient_id', 'disease_id','symptoms', 'treatment', 'medicines', 'prevention', 'status'),
+                values_list=[(doctor_id, patient_id, disease_id,symptoms, treatment, medicines, prevention, 'active')]
             )
             
             # Get record_id
@@ -158,7 +153,7 @@ def add_medical_history(cursor: MySQLCursorAbstract, user_id: int) -> int:
                 cursor=cursor,
                 table='medical_history',
                 columns_list=['record_id'],
-                where_clause=[{'appointment_id': appointment_id}]
+                where_clause=[{'doctor_id': doctor_id},{'patient_id':patient_id}]
             )
             
             record_id = int(record[0][0])
@@ -204,7 +199,7 @@ def view_medical_history(cursor:MySQLCursorAbstract,user_id:int)->list[tuple]:
                     table='medical_history',
                     columns_list=['*'],
                     where_clause=where_clause 
-                ) # [('doctor_id', 'patient_id', 'disease_id', 'appointment_id', 'symptoms', 'treatment', 'medicines', 'prevention', 'status')]
+                ) # [('doctor_id', 'patient_id', 'disease_id', , 'symptoms', 'treatment', 'medicines', 'prevention', 'status')]
             
             if cursor.rowcount == 0:
                 print('❗ No medical_history found')

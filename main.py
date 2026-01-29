@@ -137,7 +137,7 @@ def main():
                     conn.commit()
                 else:
                     print(f' ❌ Failed to Add Medical History') 
-            elif choice == '10':
+            elif choice == '11':
                 print(f'updating medical history status')
                 try:
                     user_id = int(input('Enter user id : '))
@@ -149,7 +149,7 @@ def main():
                     conn.commit()
                 else:
                     print(f' ❌ Failed to UPdate medical history status')  
-            elif choice == '11':
+            elif choice == '10':
                 print(f'Viewing medical history')
                 try:
                     user_id = int(input('Enter user id : '))
