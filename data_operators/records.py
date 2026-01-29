@@ -105,12 +105,13 @@ def delete_record(
     except Error as e : 
         raise errors.ExecutionError(f'Could not execute query : {str(e).strip()}')
 
-# version 5 with manual in + order by + like
+# version 6 with manual in + order by + like + join
 def select_record(
         cursor:MySQLCursorAbstract,
         table:str,
         columns_list:list,
         where_clause:list[dict]=[],
+        join_clause:list[str]=[],
         with_or=False,
         with_like=False,
         order_by_column=None,
@@ -122,6 +123,12 @@ def select_record(
         query = f"select {','.join(columns_list)} from {table} "
         params = ()
 
+         
+        # if join in query 
+        if join_clause:
+            for join in join_clause:
+                query += f'JOIN {join} '
+                
         # if where in query 
         if where_clause or where_clause != [] :
             where_list  = []
@@ -160,7 +167,6 @@ def select_record(
             query += f' limit {limit} offset {offset}'
         elif limit and not offset:
             query += f' limit {limit}'
-    
         # execution and return
         return executors.mysql_executor(cursor,query,params)
     except DatabaseError as e :
@@ -169,10 +175,88 @@ def select_record(
         raise errors.DBConnectionError(f'could not connect : {str(e).strip()}')
     except Error as e : 
         raise errors.ExecutionError(f'Could not execute query : {str(e).strip()}')
+# def select_joint_table_record(
+#         cursor:MySQLCursorAbstract,
+#         main_table:str,
+#         columns_list:list,
+#         join_clause:list[str]=[],
+#         where_clause:list[dict]=[],
+#         with_or=False,
+#         with_like=False,
+#         order_by_column=None,
+#         order='asc',limit=None,
+#         offset=None
+#         ):
+#     # user ['*'] for all columns
+#     try:
+#         query = f"select {','.join(columns_list)} from {main_table} "
+#         params = ()
+        
+#         # if join in query 
+#         if join_clause:
+#             for join in join_clause:
+#                 query += f'JOIN {join} '
+                
+#         # if where in query 
+#         if where_clause or where_clause != [] :
+#             where_list  = []
+#             where_values = []
+#             for where_dict in where_clause:
+#                 # {column:value}
+#                 for column,value in where_dict.items():
+
+#                     auto_detect_in = isinstance(value,(tuple,list)) # here instance value (type tuple ) is an instance of class tuple hence True else false
+#                     auto_detect_like = isinstance(value, str) and ('%' in value or '_' in value) # true if value ('_%s_','%_') is in value -> true 
+#                     if auto_detect_in : 
+#                         in_clause = f"{('%s',)*len(value)}".replace('\'','') 
+#                         # f"('%s','%s')".replace('\'','') -> f"(%s,%s)"
+#                         where_list.append(f"{column} in {in_clause}")
+#                         where_values.extend(value)
+#                     elif auto_detect_like and with_like : 
+#                         # like %s -> like 't%' ;
+#                         where_list.append(f"{column} like %s")
+#                         where_values.append(value)
+#                     else:
+#                         # values in the where dict are not tuple just strings or numbers etc
+#                         where_list.append(f"{column} = %s")
+#                         where_values.append(value)
+
+#             params = tuple(where_values)
+#             conjuction = ' or ' if with_or else ' and '
+            
+#             query += f" where {conjuction.join(where_list)} "
+        
+#         # order by 
+#         if order_by_column:
+#             query +=  f" order by {order_by_column} {order} "
+
+#         # limit offset
+#         if limit and offset:
+#             query += f' limit {limit} offset {offset}'
+#         elif limit and not offset:
+#             query += f' limit {limit}'
+    
+#         # execution and return
+#         return executors.mysql_executor(cursor,query,params)
+#     except DatabaseError as e :
+#         raise errors.RecordError(f'could not Select record: {str(e).strip()}')
+#     except (InterfaceError,ProgrammingError) as e :
+#         raise errors.DBConnectionError(f'could not connect : {str(e).strip()}')
+#     except Error as e : 
+#         raise errors.ExecutionError(f'Could not execute query : {str(e).strip()}')
 
 # if __name__ == '__main__':
+
 #     from mysql.connector import connect
-#     conn = connect(host = 'localhost',user='root',password='SecurePass@1201',db='information_schema')
+#     conn = connect(host = 'localhost',user='root',password='SecurePass@1201',database='medicient')
+#     cursor = conn.cursor()
+#     select_joint_table_record(
+#         cursor=cursor,
+#         main_table='doctor',
+#         columns_list=['user.user_id','user.user_name','doctor.doctor_license_number','specialization.spec_name'],
+#         join_clause=['user ON doctor.user_id = user.user_id','specialization ON doctor.spec_id = specialization.spec_id']
+#     )
+#     conn.close()
     # # insert_record(cursor:MySQLCursorAbstract,'user',('uname','uaddress'),[('hello','testing_address1'),('bye','testing_address3')])
     # update_record('conn','user',{'uaddress':'nyaipur','uname':'tested_now'},[{'uid':(16,17)},{'uname':('bye','hello')}],with_or=True)
     # delete_record(cursor:MySQLCursorAbstract, 'user',where_clause=[{'uid' : 3},{'uid': 10}],with_or=False) # not deleted (3 and 10) 
