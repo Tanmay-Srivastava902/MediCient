@@ -35,17 +35,8 @@ CREATE TABLE `appointment` (
   KEY `patient_id` (`patient_id`),
   CONSTRAINT `appointment_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctor` (`doctor_id`),
   CONSTRAINT `appointment_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10000002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `appointment`
---
-
-LOCK TABLES `appointment` WRITE;
-/*!40000 ALTER TABLE `appointment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `appointment` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `disease`
@@ -64,18 +55,8 @@ CREATE TABLE `disease` (
   `first_case_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`disease_id`),
   UNIQUE KEY `disease_name` (`disease_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `disease`
---
-
-LOCK TABLES `disease` WRITE;
-/*!40000 ALTER TABLE `disease` DISABLE KEYS */;
-INSERT INTO `disease` VALUES (1,'short term memory loss','forgetting basic things done right now ','seen in amir khan movie','no one preferred','always have some extra writting stuff avoid repetative mind load','2026-01-27 09:10:53'),(2,'diabatese','rise in bool sugar level , increase in weight ','this diesase is very common among all the indians ','no medicine yet ','avoiod sugar and high carb diet','2026-01-27 09:13:33'),(3,'indigestion','stomach ache','often occured after bad diet','digesto','avoide overeating','2026-01-27 19:33:17');
-/*!40000 ALTER TABLE `disease` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `doctor`
@@ -99,18 +80,8 @@ CREATE TABLE `doctor` (
   KEY `spec_id` (`spec_id`),
   CONSTRAINT `doctor_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
   CONSTRAINT `doctor_ibfk_2` FOREIGN KEY (`spec_id`) REFERENCES `specialization` (`spec_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=100001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=100002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `doctor`
---
-
-LOCK TABLES `doctor` WRITE;
-/*!40000 ALTER TABLE `doctor` DISABLE KEYS */;
-INSERT INTO `doctor` VALUES (100000,10,'DOC23333333',1,'best in vascular work,best in cardia arrest cases','a doctor','reputed institue','nowhare');
-/*!40000 ALTER TABLE `doctor` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `medical_history`
@@ -139,17 +110,8 @@ CREATE TABLE `medical_history` (
   CONSTRAINT `medical_history_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctor` (`doctor_id`),
   CONSTRAINT `medical_history_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`),
   CONSTRAINT `medical_history_ibfk_3` FOREIGN KEY (`disease_id`) REFERENCES `disease` (`disease_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `medical_history`
---
-
-LOCK TABLES `medical_history` WRITE;
-/*!40000 ALTER TABLE `medical_history` DISABLE KEYS */;
-/*!40000 ALTER TABLE `medical_history` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `patient`
@@ -170,18 +132,8 @@ CREATE TABLE `patient` (
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `fk_user_patient` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
   CONSTRAINT `patient_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `patient`
---
-
-LOCK TABLES `patient` WRITE;
-/*!40000 ALTER TABLE `patient` DISABLE KEYS */;
-INSERT INTO `patient` VALUES (1,9,66,45,'very messy and dirty','Not Provided','Not Provided'),(2,12,64,45,'lazy','nowhere','Not Provided');
-/*!40000 ALTER TABLE `patient` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `specialization`
@@ -200,18 +152,8 @@ CREATE TABLE `specialization` (
   PRIMARY KEY (`spec_id`),
   UNIQUE KEY `spec_name` (`spec_name`),
   UNIQUE KEY `spec_name_2` (`spec_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `specialization`
---
-
-LOCK TABLES `specialization` WRITE;
-/*!40000 ALTER TABLE `specialization` DISABLE KEYS */;
-INSERT INTO `specialization` VALUES (1,'cardiologist','this is the doctor for heart related problems','coronary artery disease, high blood pressure (hypertension), heart failure, arrhythmias (like atrial fibrillation), and heart attacks','2026-01-27 08:32:01','verified'),(2,'nurology','docotor of brain','memory_loss,internal_dammage to brain,nerves constriction issues ','2026-01-27 09:08:36','unverified'),(3,'endocronology','handles hormonal immbalance ','diabatese','2026-01-27 09:11:51','verified'),(4,'gastrologist','deals with gastic problems','indigestion ','2026-01-27 19:31:20','unverified');
-/*!40000 ALTER TABLE `specialization` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user`
@@ -234,18 +176,8 @@ CREATE TABLE `user` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `email_2` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (2,'tsri','tsri@gmail.com','Hello@1201','admin',23,'2011-09-02','nyaipur config , heloganj ,printnagar,indiput','2026-01-26 09:05:26','inactive'),(3,'test','test@gmail.com','7a6c8c1834e8fc09b82ac75ed232bee701bdebfbb462a621d3440b4deddb9e29','admin',23,'2011-09-01','helonagar,pyragganj,inidana','2026-01-26 20:23:07','inactive'),(5,'doctor_1','dcotor@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','doctor',34,'2022-11-04','not available','2026-01-27 09:07:10','inactive'),(8,'hello','hello@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','admin',34,'2002-09-09','nyaiganj','2026-01-27 17:04:17','inactive'),(9,'patient_2','patient@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','patient',34,'2003-09-09','anynagar','2026-01-27 17:06:57','inactive'),(10,'doctor_2','doctor2@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','doctor',34,'2002-04-03','anywahre','2026-01-27 17:09:21','inactive'),(11,'admin3','admin3@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','admin',45,'2022-12-09','anywahre','2026-01-27 19:52:55','inactive'),(12,'patient5','patient5@gmail.com','784e9f183001fad9ee0f8f56abc1493dc1f2a7994d720c96aad134777ecfc9ef','patient',45,'2001-12-02','nowhare','2026-01-27 19:54:32','inactive');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -256,4 +188,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-27 20:10:05
+-- Dump completed on 2026-01-29  1:37:16
